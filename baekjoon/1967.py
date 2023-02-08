@@ -1,4 +1,5 @@
 import sys
+sys.setrecursionlimit(10**5)
 from collections import defaultdict
 input = sys.stdin.readline
 n = int(input())
@@ -12,13 +13,24 @@ dist = [-1] * (n+1)
 dist[1] = 0
 
 def dfs(node, length):
-    visited.append(node)
-    max_length = 0
-    total_length = 0
     for nxt_node, nxt_length in graph[node]:
         if dist[nxt_node] == -1:
-            dist[nxt_ndoe] = nxt_length + length
+            dist[nxt_node] = nxt_length + length
             dfs(nxt_node, nxt_length + length)
 
 dfs(1, 0)
+
+deepest = -1
+max_dist = max(dist)
+for k, v in enumerate(dist):
+    if v == max_dist:
+        deepest = k
+        break
+
+dist = [-1] * (n+1)
+dist[deepest] = 0
+
+dfs(deepest, 0)
+
+print(max(dist))
 
