@@ -2,6 +2,7 @@ import sys
 input = sys.stdin.readline
 r, c = map(int, input().split())
 arr = []
+visited = [[0] * c for _ in range(r)]
 for i in range(r):
     v = list(input()[:c])
     arr.append(v)
@@ -15,21 +16,21 @@ def dfs(x, y, paths):
     if x == c-1:
         global cnt
         cnt += 1
-        for px, py in paths:
-            arr[py][px] = '-'
         return True
 
     temp = False
+
     for i in range(3):
         nx = dx[i] + x
         ny = dy[i] + y
-        if 0<=nx<c and 0<=ny<r and arr[ny][nx] == '.':
-            
+        if 0<=nx<c and 0<=ny<r and visited[ny][nx] == 0 and arr[ny][nx] == '.':
             paths.append((nx, ny))
+            visited[ny][nx] = 1
             temp = dfs(nx, ny, paths)
-            
-        if temp:
-            return True
+            if not temp:
+                paths.pop()
+            else:
+                return True
 
     return False
 
