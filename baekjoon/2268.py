@@ -33,8 +33,10 @@ for _ in range(m):
     a, b, c = map(int, input().split())
     if a == 0:
         # sum
-        print(sum(1, n, 1, b, c))
-        pass
+        if b < c:
+            print(sum(1, n, 1, b, c))
+        else:
+            print(sum(1, n, 1, c, b))
     else:
         # modify
         modify(1, n, 1, b, c)
