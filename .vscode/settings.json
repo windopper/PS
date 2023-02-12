@@ -32,5 +32,10 @@
     "**/.*/**",
     "**/.vscode",
     "**/.vscode/**"
-  ]
+  ],
+  "files.associations": {
+    "typeinfo": "cpp",
+    "iostream": "cpp",
+    "cmath": "cpp"
+  }
 }
