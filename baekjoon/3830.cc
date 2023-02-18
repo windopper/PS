@@ -30,8 +30,6 @@ int main() {
             int w;
 
             cin >> q >> a >> b;
-
-            bool possible = true;
             
             if(q == '!') {
                 cin >> w;
