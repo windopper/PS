@@ -1,27 +1,40 @@
 #include <iostream>
 #include <vector>
-#include <utility>
-#include <string>
-#include <algorithm>
 #include <cmath>
-#include <queue>
 
 using namespace std;
 
-int sam = 1;
-int tes = 0;
-int parent[100010]{};
-int weight[100010]{};
+int t = 0;
+int weight[1001]{};
+int dp[1001] = {0, };
+bool visited[1001] = {false, };
+vector<vector<int>> vec(1001, vector<int>(1001, 0));
 
-int find(int x, int y)
+int find(int x)
 {
-    if (x == parent[x])
+    visited[x] = true;
+    // 방문했구나 환영한다
+
+    if (vec[x][0] == 0)
+    // 출발 지접 도달하면 그냥 뱉음
+        return dp[x];
+
+    int max_find = 0;
+    for (int d = 1; d < vec[x][0] + 1; d++)
     {
-        return x;
-    } // weight 값이 부모에게 있다는 것 자체가 업데아트가 안되었다는 뜻임
-    weight[x] += weight[parent[x]];
-    parent[x] = find(parent[x], x);
-    return parent[x];
+        if (visited[vec[x][d]]) {
+            // 한번이라도 방문한 적이 있다면
+            // 계산해두었던 값을 뱉음
+            max_find = max(max_find, dp[vec[x][d]]);
+            continue;
+        }
+        max_find = max(find(vec[x][d]), max_find);
+        // 아니라면 계속 내려감
+    }
+    dp[x] += max_find;
+    // 가장 오래걸린 시간을 저장
+
+    return dp[x];
 }
 
 int main()
@@ -30,58 +43,46 @@ int main()
     cin.tie(0);
     cout.tie(0);
 
-    while (true)
+    cin >> t;
+
+    for (int i = 0; i < t; i++)
     {
 
-        cin >> sam >> tes;
+        int n = 0;
+        int m = 0;
+        int object = 0;
 
-        if (sam == 0)
-        {
-            break;
-        }
+        cin >> n >> m;
 
-        for (int i = 1; i < sam + 1; i++)
-        {
-            parent[i] = i;
-            weight[i] = 0;
-        }
-
-        for (int i = 0; i < tes; i++)
+        for (int k = 1; k < n + 1; k++)
         {
 
-            char k;
-            int s1 = 0;
-            int s2 = 0;
             int w = 0;
 
-            cin >> k >> s1 >> s2;
+            cin >> w;
 
-            int fs1 = find(s1, s1);
-            int fs2 = find(s2, s2);
-
-            if (k == '!')
-            {
-
-                cin >> w;
-                if (fs1 != fs2)
-                { // s1을 모르면
-                    parent[fs2] = fs1;
-                    // weight[fs2] = w - weight[s2] + weight[s1];
-                    weight[fs2] = weight[s1] - weight[s2] + w;
-                }
-            }
-            else
-            { // ?를 받았을때
-                if (fs1 == fs2)
-                {
-                    cout << weight[s2] - weight[s1] << "\n";
-                }
-                else
-                {
-                    cout << "UNKNOWN"
-                         << "\n";
-                }
-            }
+            dp[k] = w;
+            visited[k] = false;
+            weight[k] = w;
+            vec[k][0] = 0;  
         }
+
+        for (int j = 0; j < m; j++)
+        {
+
+            int a = 0;
+            int b = 0;
+
+            cin >> a >> b;
+
+            vec[b][0] += 1;
+            vec[b][vec[b][0]] = a;
+        }
+
+        cin >> object;
+
+        cout << find(object) << "\n";
+
     }
+    return 0;
 }
