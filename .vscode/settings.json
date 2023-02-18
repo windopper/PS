@@ -36,6 +36,7 @@
   "files.associations": {
     "typeinfo": "cpp",
     "iostream": "cpp",
-    "cmath": "cpp"
+    "cmath": "cpp",
+    "ostream": "cpp"
   }
 }
