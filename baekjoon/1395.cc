@@ -2,63 +2,47 @@
 
 using namespace std;
 int N, M;
-int arr[100001] = {0, };
 int tree[400004] = {0, };
 int lazy[400004] = {0, };
 
-int sum(int i) {
-    int ans = 0;
-    while( i > 0 ) {
-        ans += tree[i];
-        i -= (i & -i);
-    }
-    return ans;
-}
-
-int sum(int i, int j) {
-    return sum(j) - sum(i-1);
-}
-
-void update(int i) {
-    int status = sum(i, i);
-    while(i < 400004) {
-        if(status == 1) {
-            tree[i] -= 1;
-        }
-        else {
-            tree[i] += 1;
-        }
-        i += (i & -i);
-    }
-}
-
-void update(int i, int j) {
-    for(; i<=j; i++) {
-        update(i);
-    }
-}
-
 void propagation(int s, int e, int idx) {
     if (lazy[idx] != 0) {
-        tree[idx] = (e-s+1) - tree[idx];
+        // 갱신이 필요하다면
+        tree[idx] = e - s + 1 - tree[idx];
+        // 개수 반전
         if (s != e) {
-            lazy[idx*2] = !lazy[idx];
-            lazy[idx*2+1] = !lazy[idx];
+            // 하위 노드가 있다면
+            lazy[idx*2] = !lazy[idx*2];
+            lazy[idx*2+1] = !lazy[idx*2+1];
+            // 다음 갱신 때 개수 반전이 필요하겠지? 라고 알려줌
         }
         lazy[idx] = 0;
     }
 }
 
-int update(int s, int e, int idx, int l , int r) {
+void update(int s, int e, int idx, int l , int r) {
     propagation(s, e, idx);
     if(s > r || e < l) return;
-    if(s >= l && e <= r) return tree[idx];
+    if(s >= l && e <= r) {
+        // 트리 범위 안에 있다면
+        tree[idx] = (e-s+1) - tree[idx];
+        // 개수 반전
+        if(s != e) {
+            // 하위 노드가 있다면
+            lazy[idx*2] = !lazy[idx*2];
+            lazy[idx*2+1] = !lazy[idx*2+1];
+        }
+        return;
+    }
     int mid = (s + e) / 2;
-    return update(s, mid, idx*2, l, r) + update(mid+1, e, idx*2+1, l, r);
+    update(s, mid, idx*2, l, r);
+    update(mid+1, e, idx*2+1, l, r);
+    tree[idx] = tree[idx*2] + tree[idx*2+1];
 }
 
 int find(int s, int e, int idx, int l, int r) {
-    if(s > r || e < l) return;
+    propagation(s, e, idx);
+    if(s > r || e < l) return 0;
     if(s >= l && e <= r) return tree[idx];
     int mid = (s + e) / 2;
     return find(s, mid, idx*2, l, r) + find(mid+1, e, idx*2+1, l, r);
@@ -71,10 +55,10 @@ int main() {
         int a, b, c;
         cin >> a >> b >> c;
         if(a == 0) {
-            update(b, c);
+            update(1, N, 1, b, c);
         }
         else {
-            cout << sum(b, c) << "\n";
+            cout << find(1, N, 1, b, c) << "\n";
         }
     }
 }
