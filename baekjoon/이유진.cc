@@ -1,40 +1,52 @@
 #include <iostream>
+#include <algorithm>
 #include <vector>
 #include <cmath>
 
 using namespace std;
 
-int t = 0;
-int weight[1001]{};
-int dp[1001] = {0, };
-bool visited[1001] = {false, };
-vector<vector<int>> vec(1001, vector<int>(1001, 0));
+int N, M;
+int siz[500001]{};
+int tree[2000001]{};
 
-int find(int x)
+int init(int start, int end, int node)
 {
-    visited[x] = true;
-    // 방문했구나 환영한다
 
-    if (vec[x][0] == 0)
-    // 출발 지접 도달하면 그냥 뱉음
-        return dp[x];
+    if (start == end)
+        return tree[node] = siz[start];
+    int mid = (start + end) / 2;
 
-    int max_find = 0;
-    for (int d = 1; d < vec[x][0] + 1; d++)
+    return tree[node] = init(start, mid, node*2) + init(mid + 1, end, node*2 + 1);
+}
+
+void update(int start, int end, int node, int index, int dif)
+{
+
+    if (index<start || index> end)
+        return;
+
+    tree[node] += dif;
+    if (start == end)
+        return;
+
+    int mid = (start + end) / 2;
+    update(start, mid, node*2, index, dif);
+    update(mid + 1, end, node*2 + 1, index, dif);
+}
+
+int find(int start, int end, int node, int findt)
+{
+
+    if (start == end)
+        return start;
+
+    int mid = (start + end) / 2;
+    if (tree[node*2] < findt)
     {
-        if (visited[vec[x][d]]) {
-            // 한번이라도 방문한 적이 있다면
-            // 계산해두었던 값을 뱉음
-            max_find = max(max_find, dp[vec[x][d]]);
-            continue;
-        }
-        max_find = max(find(vec[x][d]), max_find);
-        // 아니라면 계속 내려감
+        return find(mid + 1, end, node*2 + 1, findt - tree[node*2]);
     }
-    dp[x] += max_find;
-    // 가장 오래걸린 시간을 저장
-
-    return dp[x];
+    // 왼쪽 노드값이  찾는 값보다 더 클경우
+    return find(start, mid, node*2, findt);
 }
 
 int main()
@@ -43,46 +55,44 @@ int main()
     cin.tie(0);
     cout.tie(0);
 
-    cin >> t;
+    cin >> N;
 
-    for (int i = 0; i < t; i++)
+    for (int i = 0; i < N; i++)
     {
 
-        int n = 0;
-        int m = 0;
-        int object = 0;
+        cin >> siz[i];
+    }
 
-        cin >> n >> m;
+    cin >> M;
 
-        for (int k = 1; k < n + 1; k++)
+    init(0, N - 1, 1);
+
+    for (int i = 0; i < M; i++)
+    {
+
+        int t = 0;
+
+        cin >> t;
+
+        if (t == 1)
         {
+
+            int divs = 0;
 
             int w = 0;
 
-            cin >> w;
+            cin >> divs >> w;
 
-            dp[k] = w;
-            visited[k] = false;
-            weight[k] = w;
-            vec[k][0] = 0;  
+            update(0, N - 1, 1, divs - 1, w);
         }
-
-        for (int j = 0; j < m; j++)
+        else
         {
 
-            int a = 0;
-            int b = 0;
+            int divs = 0;
 
-            cin >> a >> b;
+            cin >> divs;
 
-            vec[b][0] += 1;
-            vec[b][vec[b][0]] = a;
+            cout << find(0, N - 1, 1, divs) + 1 << '\n';
         }
-
-        cin >> object;
-
-        cout << find(object) << "\n";
-
     }
-    return 0;
 }

@@ -25,7 +25,7 @@ int main() {
             int tmp = 0;
             cin >> tmp;
             v.push_back(tmp);
-        }
+        }n
 
         for(int j=0; j<c-1; j++) {
             graph[v[j]].push_back(v[j+1]);
