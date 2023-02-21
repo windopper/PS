@@ -1,50 +1,85 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <cmath>
 
 using namespace std;
 typedef long long ll;
 
-ll DIV = 1000000007;
+#define DIV 1000000007
+#define MAX 200010
 
 int N;
-ll arr[2000001] = {0, };
-ll cost[2000001] = {0, };
-ll accumulate[2000001] = {0, };
-ll tree[8000004] = {0, };
+ll cntTree[MAX] = {0, };
+ll sumTree[MAX] = {0, };
 
-ll init(int start, int end, int index) {
-    if(start == end) {
-        tree[index] = cost[start];
-        return tree[index];
+void updateCnt(int x) {
+    while (x <= MAX) {
+        cntTree[x]++;
+        x += (x & -x);
     }
-    int mid = (start+end) / 2;
-    ll left = init(start, mid, index*2);
-    ll right = init(mid+1, end, index*2+1);
-    return tree[index] = ((left % DIV) * (right % DIV)) % DIV;
 }
 
-int main() {
-    cin >> N;
-    for(int i=1; i<N+1; i++) {
-        cin >> arr[i];
-        accumulate[i] = accumulate[i-1] + arr[i];
-        cost[i] = abs(accumulate[i] - i * arr[i]);
-        if(cost[i] == 0) cost[i] = 1;
+void updateSum(int x, int diff) {
+    while (x <= MAX) {
+        sumTree[x] += diff;
+        x += (x & -x);
     }
+}
+
+int findCnt(int x) {
+    int res = 0;
+    while ( x > 0 ) {
+        res += cntTree[x];
+        x -= (x & -x);
+    }
+    return res;
+}
+
+int findCnt(int x, int y) {
+    return findCnt(y) - findCnt(x-1);
+}
+
+int findSum(int x) {
+    ll res = 0;
+    while ( x > 0 ) {
+        res += sumTree[x];
+        x -= (x & -x);
+    }
+    return res;
+}
+
+int findSum(int x, int y) {
+    return findSum(y) - findSum(x-1);
+}
     
-    init(1, N, 1);
-    for(int j=1; j<N+1; j++) {
-        cout << accumulate[j] << " ";
+int main() {
+    ios_base::sync_with_stdio(0); cin.tie(0); cout.tie(0);
+    cin >> N;
+    ll ans = 1;
+    for(int i=1; i<N+1; i++) {
+        int tmp;
+        cin >> tmp;
+        ++tmp;
+        if( i > 1 ) {
+            ll leftCnt = findCnt(tmp - 1);
+            ll leftSum = findSum(tmp - 1);
+
+            ll rightCnt = findCnt(tmp+1, MAX);
+            ll rightSum = findSum(tmp+1, MAX);
+
+            ll lcost = tmp * leftCnt - leftSum;
+            ll rcost = rightSum - tmp * rightCnt;
+
+            lcost %= DIV;
+            rcost %= DIV;
+            ll res = (lcost + rcost) % DIV;
+            ans *= res;
+            ans %= DIV;
+        }
+        updateCnt(tmp);
+        updateSum(tmp, tmp);
     }
-    cout << endl;
-    for(int j=1; j<N+1; j++) {
-        cout << cost[j] << " ";
-    }
-    cout << endl;
-    for(int i=1; i<4*N+1; i++) {
-        cout << tree[i] << " ";
-    }
-    cout << endl;
-    cout << tree[1];
+
+    cout << ans % DIV;
 }
