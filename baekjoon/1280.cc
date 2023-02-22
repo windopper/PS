@@ -27,8 +27,8 @@ void updateSum(int x, int diff) {
     }
 }
 
-int findCnt(int x) {
-    int res = 0;
+ll findCnt(int x) {
+    ll res = 0;
     while ( x > 0 ) {
         res += cntTree[x];
         x -= (x & -x);
@@ -36,7 +36,7 @@ int findCnt(int x) {
     return res;
 }
 
-int findCnt(int x, int y) {
+ll findCnt(int x, int y) {
     return findCnt(y) - findCnt(x-1);
 }
 
@@ -71,11 +71,10 @@ int main() {
             ll lcost = tmp * leftCnt - leftSum;
             ll rcost = rightSum - tmp * rightCnt;
 
-            lcost %= DIV;
-            rcost %= DIV;
+            lcost = lcost % DIV;
+            rcost = rcost % DIV;
             ll res = (lcost + rcost) % DIV;
-            ans *= res;
-            ans %= DIV;
+            ans = ans * res % DIV;
         }
         updateCnt(tmp);
         updateSum(tmp, tmp);
