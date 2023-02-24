@@ -4,19 +4,14 @@
 using namespace std;
 vector<int> arr;
 int N, S;
-bool visited[20] = {false, };
-int solve(vector<int>& path, int sum, int idx) {
-    //cout << sum << " ";
-    if(sum == S && path.size() > 0) return 1;
-    if(idx+1 >= arr.size()) return 0;
-    int res = 0;
-    for(int i=idx+1; i<arr.size(); i++) {
-        visited[i] = true;
-        path.push_back(arr[i]);
-        res += solve(path, sum + arr[i], i);
-        path.pop_back();
-        visited[i] = false;
+int solve(int sum, int idx) {
+    if(idx == N) {
+        if(sum == S) return 1;
+        else return 0;
     }
+    int res = 0;
+    res += solve(sum+arr[idx], idx+1);
+    res += solve(sum, idx+1);
     return res;
 }
 
@@ -29,5 +24,7 @@ int main() {
     }
     sort(arr.begin(), arr.end());
     vector<int> path;
-    cout << solve(path, 0, -1);
+    int ans = solve(0, 0);
+    if(S == 0) --ans;
+    cout << ans;
 }
