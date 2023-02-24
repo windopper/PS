@@ -1,9 +1,12 @@
 #include <bits/stdc++.h>
+#include <functional>
+#include <limits>
 
 using namespace std;
 int N, D;
 priority_queue<pair<int, int>> q;
-map<int, vector<pair<int, int>>> graph;
+vector<int[3]> graph;
+vector<int> nodes;
 
 int main() {
     ios_base::sync_with_stdio(0); cin.tie(0); cout.tie(0);
@@ -11,26 +14,44 @@ int main() {
     for(int i=0; i<N; i++) {
         int s, e, c;
         cin >> s >> e >> c;
-        graph[s].push_back({c, e});
+        if(e > D) continue;
+        graph.push_back({s, e, c});
     }
 
-    for(int i=0; i<graph[0].size(); i++) {
-        q.push(graph[0][i]);
-    }
 
-    int dist[12] = {100000000, };
+    int dist[10000];
+    fill_n(dist, 10000, numeric_limits<int>::max());
     int visited[12] = {0, };
+
+    q.push({0, 0});
+    dist[0] = 0;
 
     while(!q.empty()) {
         
-        int cost = q.top().first;
+        int cost = -q.top().first;
         int cur = q.top().second;
+        q.pop();
 
-        if(visited[cur] == 1) continue;
-        for(int i=0; i<graph[cur].size(); i++) {
-            int nxt = graph[cur][i].first;
-            int nxt_cost = graph[cur][i].second;
-            
+        if(cur == D) {
+            cout << cost;
+            break;
+        }
+
+        if(cur > D) {
+            continue;
+        }
+
+        for(int i=0; i<graph.size(); i++) {
+            int s = graph[i][0];
+            int e = graph[i][1];
+            int nxt_cost = graph[i][2];
+            if(s < cur) continue;
+            int alt = s - cur + nxt_cost + cost;
+            if(alt < dist[e]) {
+                dist[e] = alt;
+                q.push({-alt, e});
+            }
         }
     }
+
 }
