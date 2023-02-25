@@ -17,12 +17,12 @@ void find(int targeth) {
             // 기준보다 땅이 낮을 경우 
             if(arr[i][j] < targeth) {
                 useBlock += targeth - arr[i][j];
-                ++estimate;
+                estimate += targeth - arr[i][j];
             }
             // 기준보다 땅이 높을 경우
             else if(arr[i][j] > targeth) {
                 useBlock -= arr[i][j] - targeth;
-                estimate += 2;
+                estimate += 2 * ( arr[i][j] - targeth );
             }
         }
     }
