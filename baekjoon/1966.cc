@@ -1,3 +1,4 @@
+#include <bits/stdc++.h>
 #include <queue>
 #include <iostream>
 #include <algorithm>
@@ -9,34 +10,36 @@ int main() {
     int T;
     cin >> T;
     for(; T>0; T--) {
-        int N, M, maxValue = 0;
+        int N, M;
         queue<int> q;
+        priority_queue<int> pq;
         cin >> N >> M;
+ 
         for(int i=0; i<N; i++) {
             int tmp;
             cin >> tmp;
             q.push(tmp);
-            maxValue = max(tmp, maxValue);
+            pq.push(tmp);
         }
+
         int cnt = 0;
-        while(true) {
-            cnt++;
-            if(M == q.front()) {
-                break;
-            }
-            else if(maxValue != q.front()) {
-                q.push(q.front());
-                q.pop();
+        while(!q.empty()) {
+            if(q.front() == pq.top()) {
+                //cout << pq.top() << "\n";
+                q.pop(); pq.pop();
+                cnt++;
+                if(M == 0) {
+                    cout << cnt << "\n";
+                    break;
+                }
+                --M;
             }
             else {
+                q.push(q.front());
                 q.pop();
-                for(int i=0; i<q.size(); i++) {
-                    maxValue = max(maxValue, q.front());
-                    q.push(q.front());
-                    q.pop();
-                }
+                if(M == 0) M = q.size() - 1;
+                else --M;
             }
         }
-        cout << cnt << "\n";
     }
 }
