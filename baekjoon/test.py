@@ -1,3 +1,7 @@
-import codecs
-s = input()
-s = u"è«›ê¹†ï¿½ ï¿½â‘¤ì”ªï¿½ë£ï¿½ï¿½ï§žï¿½"
+for _ in range(int(input())):
+    a, b = input().split()
+    a = int(a)
+    ans = ''
+    for s in b:
+        ans += ''.join([s for i in range(a)])
+    print(ans)
