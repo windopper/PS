@@ -86,6 +86,26 @@
                 "isDefault": true
             },
             "detail": "디버거에서 생성된 작업입니다."
+        },
+        {
+            "type": "cppbuild",
+            "label": "C/C++: cpp.exe 활성 파일 빌드",
+            "command": "C:\\msys64\\mingw64\\bin\\cpp.exe",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "${file}",
+                "-o",
+                "${fileDirname}\\${fileBasenameNoExtension}.exe"
+            ],
+            "options": {
+                "cwd": "${fileDirname}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build",
+            "detail": "디버거에서 생성된 작업입니다."
         }
     ]
 }

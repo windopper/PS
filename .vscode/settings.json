@@ -38,5 +38,6 @@
     "iostream": "cpp",
     "cmath": "cpp",
     "ostream": "cpp"
-  }
+  },
+  "C_Cpp_Runner.useAddressSanitizer": false
 }
