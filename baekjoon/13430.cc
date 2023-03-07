@@ -2,7 +2,7 @@
 
 using namespace std;
 
-const int mod = 998244353;
+const int mod = 1000000007;
 using lint = long long;
 lint ipow(lint x, lint p) {
     lint ret = 1, piv = x;
@@ -130,10 +130,24 @@ lint det(int n, vector<elem> M) {
     return sol;
 }
 
+int dp[51][222];
+
 int main() {
     ios_base::sync_with_stdio(0);
     cin.tie(0);
     cout.tie(0);
     int k, n;
     cin >> k >> n;
+    for (int i = 0; i <= k; i++) {
+        for (int j = 0; j < 222; j++) {
+            if (i == 0) {
+                dp[i][j] = j;
+                continue;
+            }
+            for (int k = 1; k <= j; k++) dp[i][j] = (dp[i][j] + dp[i - 1][k]) % mod;
+        }
+    }
+    vector<int> v;
+    for (int i = 0; i < 222; i++) v.push_back(dp[k][i]);
+    cout << guess_nth_term(v, n);
 }

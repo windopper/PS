@@ -19,5 +19,5 @@ int main() {
     int ans = getDist(arr[0], arr[1]);
     // 처음 두 점 거리
     for (int i = 2; i < n; i++) {
-        }
+    }
 }
