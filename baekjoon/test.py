@@ -1,1 +1,1 @@
-input(); print(min(s:=[*map(int, input().split())]), max(s))
+from collections import Counter; print(c[0][0] if len(c := Counter(input().upper()).most_common(2)) == 1 else (c[0][0] if c[0][1] != c[1][1] else '?'))
