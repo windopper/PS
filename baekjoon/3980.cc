@@ -35,7 +35,6 @@ int main() {
             visited[i] = true;
             ans = max(ans, dfs(visited, arr[i][pos], pos + 1));
             visited[i] = false;
-            ++pos;
         }
 
         cout << ans << "\n";
