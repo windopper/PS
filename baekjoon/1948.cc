@@ -6,56 +6,36 @@ vector<vector<pair<int, int>>> edges;
 vector<vector<pair<int, int>>> revs;
 int s, e;
 int dp[100001];
-bool visited[100001];
+int indegree[100001];
+bool visited[100001] = {false, };
 int ans = 0;
 
-int dfs(int cur) {
-    if(cur == e) {
-        return 0;
-    }
-    int &ret = dp[cur];
-    if(ret != 0) return ret;
-    for(int i=0; i<edges[cur].size(); i++) {
-        int next = edges[cur][i].first;
-        int nextTime = edges[cur][i].second;
-        ret = max(ret, dfs(next) + nextTime);
-    }
-    return ret;
-}
-
-void bfs(int cur) {
-    queue<pair<int, int>> q;
-    q.push({0, cur});
-    while(!q.empty()) {
-        cur = q.back().second;
-        int cost = q.back().first;
-        q.pop();
-        for(int i=0; i<edges[cur].size(); i++) {
-            int next = edges[cur][i].first;
-            int nextCost = edges[cur][i].second;
-            dp[next] = max(dp[next], cost + nextCost);
-            q.push({cost + nextCost, next});
+void dfs(int cur) {
+    if(visited[cur]) return;
+    visited[cur] = true;
+    for(int i=0; i<revs[cur].size(); i++) {
+        int next = revs[cur][i].first;
+        int nextCost = revs[cur][i].second;
+        if(dp[cur] - nextCost == dp[next]) {
+            dfs(next);
+            ++ans;
         }
     }
 }
 
-void find_bfs(int cur) {
+void bfs(int cur) {
     queue<int> q;
     q.push(cur);
-    visited[cur] = true;
     while(!q.empty()) {
-        cur = q.back();
+        cur = q.front();
         q.pop();
-
-        for(int i=0; i<revs[cur].size(); i++) {
-            int prev = revs[cur][i].first;
-            int prevTime = revs[cur][i].second;
-            if(dp[cur] + prevTime == dp[prev]) {
-                ++ans;
-                if(!visited[prev]) {
-                    visited[prev] = true;
-                    q.push(prev);
-                }
+        for(int i=0; i<edges[cur].size(); i++) {
+            int next = edges[cur][i].first;
+            int nextCost = edges[cur][i].second;
+            dp[next] = max(dp[next], dp[cur] + nextCost);
+            --indegree[next];
+            if(indegree[next] == 0) {
+                q.push(next);
             }
         }
     }
@@ -72,11 +52,12 @@ int main() {
         cin >> u >> v >> t;
         edges[u].push_back({v, t});
         revs[v].push_back({u, t});
+        indegree[v]++;
     }
 
     cin >> s >> e;
 
-    dfs(s);
-    find_bfs(e);
-    cout << dp[s] << "\n" << ans;
+    bfs(s);
+    dfs(e);
+    cout << dp[e] << "\n" << ans;
 }
