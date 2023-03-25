@@ -2,10 +2,13 @@
 
 using namespace std;
 vector<vector<int>> edges;
-int dis[100001];
-int isScc[100001];
+vector<vector<int>> sccs;
+int dis[1000001];
+int isScc[1000001];
 stack<int> st;
-int n = 0;
+int n = 0, sccId = 1;
+
+int indegree[1000001];
 
 int tarjan(int cur) {
     dis[cur] = ++n;
@@ -19,15 +22,12 @@ int tarjan(int cur) {
         vector<int> cycle;
         while(1) {
             int t = st.top(); st.pop();
-            isScc[t] = 1;
+            isScc[t] = sccId;
             cycle.push_back(t);
             if(t == cur) break;
         }
-        sort(cycle.begin(), cycle.end());
-        for(auto c : cycle) {
-            cout << c << " ";
-        }
-        cout << "\n";
+        sccs.push_back(cycle);
+        ++sccId;
     }
     return ret;
 }
@@ -47,4 +47,28 @@ int main() {
         if(dis[i]) continue;
         tarjan(i);
     }
+
+    for(int i=1; i<N+1; i++) {
+        for(int next : edges[i]) {
+            if(isScc[i] != isScc[next]) {
+                ++indegree[isScc[next]];
+            }
+        }
+    }
+
+    int cnt = 0;
+    for(int i=1; i<=sccs.size(); i++) {
+        if(indegree[i] == 0) ++cnt;
+    }
+
+    if(cnt == 1) {
+        vector<int> temp = sccs.back();
+        sort(temp.begin(), temp.end());
+        cout << temp.size() << "\n";
+        for(int next : temp) cout << next << " ";
+    }
+    else {
+        cout << 0;
+    }
+
 }

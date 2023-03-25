@@ -1,2 +1,2 @@
 
-        string s;
+    int has = false;
