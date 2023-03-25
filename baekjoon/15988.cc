@@ -2,15 +2,15 @@
 
 using namespace std;
 int n;
-int dp[1000001];
+long long dp[1000001];
 const int MOD = 1000000009;
 
-int solve(int cur) {
-    if(cur > n) return 0;
-    if(cur == n) return 1;
-    int &ret = dp[cur];
+long long solve(int cur) {
+    if(cur < 0) return 0;
+    if(cur == 0) return 1;
+    long long &ret = dp[cur];
     if(ret != -1) return ret;
-    ret = (solve(cur + 1) + solve(cur + 2) + solve(cur + 3)) % MOD;
+    ret = (solve(cur - 1) + solve(cur - 2) + solve(cur - 3)) % MOD;
     return ret;
 }
 
@@ -21,6 +21,6 @@ int main() {
     for(; T>0; --T) {
         cin >> n;
         memset(dp, -1, sizeof(dp));
-        cout << solve(0) % MOD << "\n";
+        cout << solve(n) << "\n";
     }
 }
