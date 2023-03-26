@@ -1,90 +1,60 @@
-#include <iostream>
-
-#define MAX 1000000000
+#include <bits/stdc++.h>
 
 using namespace std;
-int N, M;
-int oTree[1000000001] = {
-    0,
-};
-int eTree[1000000001] = {
-    0,
-};
+int N;
+int arr[100001];
+int tree[400004];
 
-void _oddUpdate(int x, int diff) {
-    while(x < MAX) {
-      oTree[x] = oTree[x] + diff;
-      x += (x & -x);
+void update(int s, int e, int i, int ui, int diff) {
+    if(ui < s || e < ui) return;
+    if(s == e) {
+        tree[i] = diff;
+        return;
     }
+    int m = (s+e)/ 2;
+    update(s, m, i*2, ui, diff);
+    update(m+1, e, i*2+1, ui, diff);
+    tree[i] = tree[i*2] + tree[i*2+1];
 }
 
-void _evenUpdate(int x, int diff) {
-    while(x < MAX) {
-      eTree[x] = oTree[x] + diff;
-      x += (x & -x);
-    }
+int query(int s, int e, int i, int l, int r) {
+    if(r < s || l > e) return 0;
+    if(l <= s && r >= e) return tree[i];
+    int m = (s+e)/2;
+    return query(s, m, i*2, l, r) + query(m+1, e, i*2+1, l, r);
 }
-
-int _evenQuery(int x) {
-    int res = 0;
-    while(x > 0) {
-      res += eTree[x];
-      x -= (x & -x);
-    }
-    return res;
-}
-
-int _evenQuery(int x, int y) {
-    return _evenQuery(y) - _evenQuery(x-1);
-}
-
-int _oddQuery(int x) {
-    int res = 0;
-    while(x > 0) {
-      res += oTree[x];
-      x -= (x & -x);
-    }
-    return res;
-}
-
-int _oddQuery(int x, int y) { return _oddQuery(y) - _oddQuery(x - 1); }
 
 int main() {
     ios_base::sync_with_stdio(0); cin.tie(0); cout.tie(0);
     cin >> N;
-    for(int i=0; i<N; i++) {
+    for(int i=1; i<N+1; i++) {
         int tmp;
         cin >> tmp;
         if(tmp % 2 == 0) {
-            _evenUpdate(tmp, 1);
-        }
-        else {
-            _oddUpdate(tmp, 1);
+            update(1, N, 1, i, 1);
         }
     }
+    int M;
     cin >> M;
     for(int i=0; i<M; i++) {
-        //query
         int a, b, c;
         cin >> a >> b >> c;
         if(a == 1) {
-            // update   
-            if(b % 2 == 0) {
-                _evenUpdate(b, -1);
-                _evenUpdate(c, 1);
+            if(c % 2 == 1) {
+                update(1, N, 1, b, 0);
             }
             else {
-                _oddUpdate(b, -1);
-                _oddUpdate(c, 1);
+                update(1, N, 1, b, 1);
             }
         }
         else if(a == 2) {
-            // even
-            cout << _evenQuery(b, c) << "\n";
+            cout << query(1, N, 1, b, c);
+            cout << "\n";
         }
         else {
-            // odd
-            cout << _oddQuery(b, c) << "\n";
+            cout << c - b + 1 - query(1, N, 1, b, c);
+            cout << "\n";
         }
+
     }
 }

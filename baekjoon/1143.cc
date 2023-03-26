@@ -1,10 +1,11 @@
 #include <bits/stdc++.h>
+#include <limits>
 
 using namespace std;
 int N;
 int costs[51];
 vector<vector<int>> edges;
-vector<int> sccs;
+vector<vector<int>> sccs;
 int dis[51];
 int sccId[51];
 int indegree[51];
@@ -21,13 +22,14 @@ int tarjan(int cur) {
     }
     if(ret == dis[cur]) {
         int minCost = 1001;
+        vector<int> cycle;
         while(1) {
             int t = st.top(); st.pop();
             sccId[t] = sccCnt;
-            minCost = min(minCost, costs[t]);
+            cycle.push_back(t);
             if(t == cur) break;
         }
-        sccs.push_back(minCost);
+        sccs.push_back(cycle);
         ++sccCnt;
     }
 
@@ -64,15 +66,29 @@ int main() {
 
     double ans = 0;
     vector<int> remainMinPrice;
-    double cnt = 0;
+    int cnt = 0;
 
     for(int i=1; i<sccCnt; i++) {
         if(indegree[i] == 0) {
-            ans += sccs[i-1];
+            int minCost = numeric_limits<int>::max();
+            int minNode = -1;
+            for(auto node : sccs[i-1]) {
+                if(minCost > costs[node]) {
+                    minCost = costs[node];
+                    minNode = node;
+                }
+            }
+            for(auto node : sccs[i-1]) {
+                if(minNode == node) continue;
+                remainMinPrice.push_back(costs[node]);
+            }
+            ans += minCost;
             ++cnt;
         }
         else {
-            remainMinPrice.push_back(sccs[i-1]);
+            for(auto node : sccs[i-1]) {
+                remainMinPrice.push_back(costs[node]);
+            }
         }
     }
 

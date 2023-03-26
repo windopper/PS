@@ -1,54 +1,31 @@
 #include <bits/stdc++.h>
 
 using namespace std;
-int N, K, B;
-vector<int> arr;
+string s1, s2;
+int dp[4001][4001];
+
+int dfs(int l, int r, int v) {
+    if(s1.size() == l || s2.size() == r) return v + 1;
+    int &ret = dp[l][r];
+    if(ret != 0) return ret;
+    for(int i=r; i<s2.size(); i++) {
+        if(s1[l] == s2[i]) ret = max(ret, dfs(l+1, i+1, v+1)); 
+    }    
+    return ret;
+}
 
 int main() {
     ios_base::sync_with_stdio(0); cin.tie(0); cout.tie(0);
-    cin >> N >> K >> B;
-    arr.resize(B);
-    for(int i=0; i<B; i++) {
-        cin >> arr[i];
+    cin >> s1 >> s2;
+    for(int i=1; i<=s1.size(); i++) {
+        for(int j=1; j<=s2.size(); j++) {
+            if(s1[i-1] == s2[j-1]) {
+                dp[i][j] = dp[i-1][j-1] + 1;
+            }
+            else {
+                dp[i][j] = 0;
+            }
+        }
     }
-
-    sort(arr.begin(), arr.end());
-    int left = -1;
-    int right = 0;
-    int start = 0;
-    int end = 0;
-    int ans = 100000;
-    while(true) {
-
-        if(end - start - 1 >= K) {
-            ans = min(ans, right - left - 1);
-            ++left;
-            if(left >= B) break;
-            start = arr[left];
-            right = left + 1;
-            if(right >= B) end = N+1;
-            else end = arr[right];
-            continue;
-        }
-        else {
-            if(right >= B) {
-                ++left;
-                if(left >= B) break;
-                start = arr[left];
-                right = left + 1;
-                if(right >= B) end = N+1;
-                else end = arr[right];
-                continue;
-            }
-            else if(left >= B) {
-                break;
-            }
-        }
-
-        ++right;
-        if(right >= B) end = N+1;
-        else end = arr[right];
-    } 
-
-    cout << ans;
+    
 }
