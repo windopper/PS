@@ -67,7 +67,7 @@ int querydfs(int cur, int lim, vector<int>& visited) {
     return ret;
 }
 
-// O(n + logn)
+// O(n + logm)
 void query(int a, int b) {
 
     if(unionParent[a] != unionParent[b]) {
@@ -106,6 +106,7 @@ int main() {
         cin >> a >> b >> c;
         edges.push_back({c, a, b});
     }
+    // O(mlogm)
     sort(edges.begin(), edges.end());
 
     // O(m)

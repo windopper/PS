@@ -1,2 +1,2 @@
-
-    int has = false;
+) {
+                    ++outdegree[sccId[i]];
