@@ -1,2 +1,2 @@
-) {
-                    ++outdegree[sccId[i]];
+
+    ret += solve(cur + 2, 2);
