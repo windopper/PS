@@ -1,2 +1,2 @@
 
-    ret += solve(cur + 2, 2);
+    double ret = dp[cur][remain];
