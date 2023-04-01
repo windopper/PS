@@ -1,47 +1,58 @@
-#include <iostream>
-#include <vector>
-#include <set>
+#include <bits/stdc++.h>
 
 using namespace std;
 
 int N, M;
-set<int> nodes[10001];
-set<int> visited;
-int weight[10001][10001];
+vector<vector<pair<int, int>>> edges;
 
-int find(int start, int cur, int end) {
-    cout << start << " " << cur << " " << end << "\n";
-    if ( cur == end ) return weight[start][end];
-    visited.insert(cur);
-    int maxValue = 0;
-    for(set<int>::iterator iter=nodes[cur].begin(); iter!=nodes[cur].end(); iter++) {
-        set<int>::iterator fiter = visited.find(*iter);
-        if(fiter == visited.end()) {
-            continue;
+bool pass(int cur, int target, int weight) {
+    queue<int> q;
+    vector<int> visited(N+1, 0);
+    q.push(cur);
+    while(!q.empty()) {
+        int t = q.front();
+        q.pop();
+        if(visited[t]) continue;
+        visited[t] = 1;
+        if(t == target) return true;
+        for(int i=0; i<edges[t].size(); i++) {
+            int next = edges[t][i].first;
+            int nextCost = edges[t][i].second;
+            if(weight > nextCost) continue;
+            q.push(next);
         }
-        maxValue = max(maxValue, find(start, *iter, end));
     }
-    return maxValue;
+    return false;
 }
 
 int main() {
     ios_base::sync_with_stdio(0); cin.tie(0); cout.tie(0);
     cin >> N >> M;
-    for(int i=1; i<N+1; i++) {
-        set<int> vec;
-        nodes[i] = vec;
-    }
+    edges.resize(N+1);
     for(int i=0; i<M; i++) {
-        int a, b, c;
-        cin >> a >> b >> c;
-        weight[a][b] = c;
-        weight[b][a] = c;
-        nodes[a].insert(b);
-        nodes[b].insert(a);
+        int u, v, w;
+        cin >> u >> v >> w;
+        edges[u].push_back({v, w});
+        edges[v].push_back({u, w});
     }
 
-    int x, y;
-    cin >> x >> y;
-    int ans = find(x, x, y);
+    int a, b;
+    cin >> a >> b;
+    
+    int s = 1;
+    int e = 1000000000;
+    int ans = 0;
+    while(s<=e) {
+        int m = (s+e)/2;
+        bool status = pass(a, b, m);
+        if(status) {
+            ans = m;
+            s = m+1;
+        }
+        else {
+            e = m-1;
+        }
+    }
+
     cout << ans;
 }
