@@ -73,17 +73,20 @@ int main() {
         }
     }
 
-    int outdegree[2*N+2];
-    memset(outdegree, 0, sizeof(outdegree));
-
+    int indegree[2*N+2];
+    memset(indegree, 0, sizeof(indegree));
     for(int i=2; i<=2*N+1; i++) {
+        cout << i << "->" << sccId[i]<< "\n";
         for(int next : adj[i]) {
             if(sccId[i] != sccId[next]) {
-                ++outdegree[sccId[i]];
+                ++indegree[sccId[next]];
             }
         }
     }
 
+    for(int i=1; i<sccCnt; i++) {
+        cout << indegree[i] << " ";
+    }
 
     vector<pair<int, int>> order;
     for(int i=2; i<=N*2+1; i++) {
@@ -94,8 +97,7 @@ int main() {
 
     vector<int> tf1(N+2, -1);
     for(int i=0; i<2*N; i++) {
-        //cout << order[i].second << " " << outdegree[sccId[order[i].second]] << "\n";
-        if(outdegree[sccId[order[i].second/2]] != 0) {
+        if(order[i].first == -(sccCnt-1)) {
             tf1[order[i].second/2] = 2;
             continue;
         }
