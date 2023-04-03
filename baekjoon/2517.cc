@@ -1,43 +1,51 @@
 #include <bits/stdc++.h>
 
 using namespace std;
-int N;
-int arr[500001];
-int tree[500001*4+4];
+long long tree[2000000];
 
-void update(int start, int end , int idx, int updateIdx) {
-    if(start > updateIdx || end < updateIdx) return;
-    if(start == end) {
-        tree[idx] += 1;
+void update(int s, int e, int i, int ui) {
+    if(s > ui || e < ui) return;
+    if(s == e) {
+        tree[i] += 1;
         return;
     }
-    int mid = (start + end) / 2;
-    update(start, mid, idx*2, updateIdx);
-    update(mid+1, end, idx*2, updateIdx);
-    tree[idx] = tree[idx*2] = tree[idx*2+1];
+    int m = (s+e)/2;
+    update(s, m, i*2, ui);
+    update(m+1, e, i*2+1, ui);
+    tree[i] = tree[i*2] + tree[i*2+1];
+    return;
 }
 
-int query(int start, int end, int idx, int left, int right) {
-    if(start > right || end < left) return 0;
-    if(start <= left && end >= right) return tree[idx];
-    int mid = (start + end) / 2;
-    return query(start, mid, idx*2, left, right) + query(mid+1, end, idx*2+1, left, right);
-}
-
-int find(int value, int index, int left, int right) {
-    if(left == right) {
-        return tree[index];
-    }
+long long query(int s, int e, int i, int l, int r) {
+    if(s > r || e < l) return 0;
+    if(s >= l && e <= r) return tree[i];
+    int m = (s+e)/2;
+    return query(s, m, i*2, l, r) + query(m+1, e, i*2+1, l, r);
 }
 
 int main() {
     ios_base::sync_with_stdio(0); cin.tie(0); cout.tie(0);
+    int N; 
     cin >> N;
+    vector<pair<int, int>> queries;
     for(int i=0; i<N; i++) {
-        cin >> arr[i];
-        update(1, N, 1, arr[i]);
+        int t;
+        cin >> t;
+        queries.push_back({-t, N-i});
     }
-    for(int i=0; i<N; i++) {
 
+    sort(queries.begin(), queries.end());
+
+    long long ans = 0;
+    vector<pair<int, long long>> result;
+    for(pair<int, int> q : queries) {
+        long long t = query(1, N, 1, q.second, 500000) + 1;
+        result.push_back({-q.second, t});
+        update(1, N, 1, q.second);
+    }
+
+    sort(result.begin(), result.end());
+    for(int i=0; i<result.size(); i++) {
+        cout << result[i].second << "\n";
     }
 }
