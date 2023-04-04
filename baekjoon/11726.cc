@@ -5,29 +5,25 @@ const int MOD = 10007;
 int n;
 int dp[1001];
 
-int dfs(int k) {
-    if(k<=1) return 1;
-    int &ret = dp[k];
-    if(ret != -1) return ret;
-    ret = (dfs(k-1) + dfs(k-2)) % MOD;
-    return ret;
-}
-
-int solve(int k) {
-    if(k % 2 == 1) {
-        return (dfs(k) - dfs(k/2) + MOD) % MOD;
+int solve(int i) {
+    if(i >= 0 && i <= 2) {
+        return i;
     }
-    int ret = dfs(k);
-    ret = (ret - dfs(k/2) + MOD) % MOD;
-    ret = (ret - dfs(k/2-1) + MOD) % MOD;
+    int &ret = dp[i];
+    if (ret != -1) return ret;
+    ret = 0;
+    ret += solve(i-1);
+    ret %= MOD;
+    ret += solve(i-2);
+    ret %= MOD;
     return ret;
 }
 
 int main() {
-    ios_base::sync_with_stdio(0); cin.tie(0); cout.tie(0);
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    cout.tie(0);
     cin >> n;
-    memset(dp, -1, 1001);
-    dp[0] = 0;
-    dp[1] = 1;
-    cout << dfs(n);
+    memset(dp, -1, sizeof(dp));
+    cout << solve(n);
 }
