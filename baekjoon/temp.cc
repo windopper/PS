@@ -1,47 +1,53 @@
 #include <bits/stdc++.h>
 
 using namespace std;
-vector<int> match[1001];
-vector<int> aMatch;
-vector<int> bMatch;
+int dx[8] = {0, 0, 1, -1, 1, -1, 1, -1};
+int dy[8] = {1, -1, 0, 0, 1, -1, -1, 1};
+vector<vector<int>> arr;
+int N;
 
-int dis[1001];
-
-int dfs(int cur) {
-    if(dis[cur]) return false;
-    dis[cur] = true;
-    for(int next : match[cur]) {
-        if(bMatch[next] == -1 || dfs(bMatch[next])) {
-            aMatch[cur] = next;
-            bMatch[next] = cur;
-            return true;
+void spread(int x, int y, vector<vector<int>>& status, int changeTo, int changeFrom) {
+    queue<vector<int>> q;
+    for (int i = 0; i < 9; i++) {
+        q.push({x, y, i});
+    }
+    while (!q.empty()) {
+        vector<int> cur = q.front();
+        q.pop();
+        int nx = cur[0] + dx[cur[2]];
+        int ny = cur[1] + dy[cur[2]];
+        if (nx < 0 || nx >= N || ny < 0 || ny >= N) continue;
+        if (status[ny][nx] == changeFrom) {
+            status[ny][nx] = changeTo;
+            q.push({nx, ny, cur[2]});
         }
     }
-    return false;
+}
+
+int dfs(int cur, vector<vector<int>>& status) {
+    if (cur == N) {
+        return 1;
+    }
+    int ret = 0;
+    for (int i = cur; i <= cur; i++) {
+        for (int j = 0; j < N; j++) {
+            if (status[i][j] == 0) {
+                status[i][j] = 30;
+                spread(j, i, status, cur + 1, 0);
+                ret += dfs(cur + 1, status);
+                status[i][j] = 0;
+                spread(j, i, status, 0, cur + 1);
+            }
+        }
+    }
+    return ret;
 }
 
 int main() {
-    ios_base::sync_with_stdio(0); cin.tie(0); cout.tie(0);
-    int N, M;
-    cin >> N >> M;
-    for(int i=0; i<N; i++) {
-        int t;
-        cin >> t;
-        for(int j=0; j<t; j++) {
-            int x;
-            cin >> x;
-            match[i+1].push_back(x);
-        }
-    }
-
-    aMatch.assign(N+1, -1);
-    bMatch.assign(M+1, -1);
-    int cnt = 0;
-    for(int i=1; i<=N; i++) {
-        for(int j=0; j<2; j++) {
-            memset(dis, 0, sizeof(dis));
-            if(dfs(i)) ++cnt;
-        }
-    }
-    cout << cnt;
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    cout.tie(0);
+    cin >> N;
+    arr.resize(N, vector<int>(N, 0));
+    cout << dfs(0, arr);
 }

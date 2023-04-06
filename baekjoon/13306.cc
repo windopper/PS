@@ -20,7 +20,7 @@ int main() {
         p[i+1] = t;
     }
     vector<vector<int>> queries;
-    for(int i=0; i<Q; i++) {
+    for(int i=0; i<N-1 + Q; i++) {
         int x, b;
         cin >> x >> b;
         if(x == 0) {
@@ -36,7 +36,7 @@ int main() {
     reverse(queries.begin(), queries.end());
 
     vector<int> ans;
-    for(int i=0; i<Q; i++) {
+    for(int i=0; i<N-1+Q; i++) {
         if(queries[i][0] == 0) {
             int node = queries[i][1];
             int a = find(node);
