@@ -13,7 +13,8 @@ int main() {
     else {
         int cnt = 0;
         for(int i=0; i<L.size(); i++) {
-            if(L[i] == R[i]) ++cnt;
+            if(L[i] == '8' && R[i] == '8') ++cnt;
+            else if(L[i] != R[i]) break;
         }
         cout << cnt;
     }
