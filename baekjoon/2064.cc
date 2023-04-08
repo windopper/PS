@@ -16,8 +16,21 @@ int main() {
         string s;
         cin >> s;
         vector<int> bits;
+        int loc = 0;
         for(int i=0; i<4; i++) {
-            int t = stoi(s.substr(i*4, 3));
+            if(loc >= s.size()) {
+                minArr[i] = 0;
+                maxArr[i] = 0;
+                break;
+            }
+            string ss;
+            int sub = 0;
+            while(loc+sub < s.size() && s[loc+sub] != '.') {
+                ++sub;
+            }
+            ss = s.substr(loc, sub);
+            loc = loc + sub + 1;
+            int t = stoi(ss);
             minArr[i] = min(minArr[i], t);
             maxArr[i] = max(maxArr[i], t);
             bits.push_back(t);
@@ -26,18 +39,30 @@ int main() {
     }
 
     int masks[4] = {0, };
+    int maxMask = 0;
     for(int i=0; i<4; i++) {
-        for(int j=1; j<256; j=j<<1) {
-            if(maxArr[i] - minArr[i] < j) {
-                masks[i] = j;
+        if(maxMask > 0) {
+            masks[i] = pow(2, 8);
+            continue;
+        }
+        for(int j=0; j<=8; j++) {
+            if(maxArr[i] - minArr[i] < pow(2, j)) {
+                masks[i] = pow(2, j);
+                maxMask = max(maxMask, j);
                 break;
             }
         }
     }
 
     for(int i=0; i<4; i++) {
-        cout << maxArr[i] - masks[i];
+        int tmp = maxArr[i] - masks[i] + 1;
+        if(tmp < 0) tmp = 0;
+        cout << tmp;
         if(i<3) cout << ".";
     }
     cout << "\n";
+    for(int i=0; i<4; i++) {
+        cout << 256 - masks[i];
+        if(i<3) cout << ".";
+    }
 }
