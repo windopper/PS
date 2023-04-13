@@ -4,8 +4,7 @@ using namespace std;
 struct Node;
 
 vector<vector<int>> arr;
-vector<Node> nodes;
-vector<vector<vector<Node>>> matrix;
+vector<Node*> nodes;
 int dx[4] = {1, -1, 0, 0};
 int dy[4] = {0, 0, -1, 1};
 int N, K;
@@ -26,8 +25,9 @@ struct Node {
             top->moveAdj(x, y);
         }
         if (this->bottom != nullptr) {
-            this->bottom = nullptr;
+            this->bottom->top = nullptr;
         }
+        this->bottom = nullptr;
     }
 
     void moveAdj(int x, int y) {
@@ -40,17 +40,14 @@ struct Node {
 
     Node* getTop() {
         if (this->top != nullptr) {
-            return top->getTop();
-        }   
-        else
+            return this->top->getTop();
+        } else
             return this;
     }
 
     void reverse() {
-        Node* temp = this->bottom;
-        if(this->top != nullptr) this->top->reverse();
-        this->bottom = this->top;
-        this->top = temp;
+        if (this->top != nullptr) this->top->reverse();
+        swap(this->bottom, this->top);
     }
 };
 
@@ -64,44 +61,24 @@ int opposite(int x) {
     return -1;
 }
 
-int main() {
-    vector<Node> test;
-    Node* cur = new Node(0, 0, 0, 0);
-    Node* pre = nullptr;
-    for (int i = 0; i < 4; i++) {
-        test.push_back(*cur);
-        cur->bottom = pre;
-        Node nxt = Node(i+1, 0, 0, 0);
-        if (i == 3) {
-            cur->top = nullptr;
-        } else {
-            cur->top = &nxt;
+void moveAndStack(int i, int nx, int ny) {
+    Node* bot = nullptr;
+    Node* cur = nodes[i];
+    for (int j = 0; j < K; j++) {
+        Node* nxt = nodes[j];
+        if (nxt->x == nx && nxt->y == ny) {
+            bot = nxt->getTop();
+            break;
         }
-        pre = cur;
-        cur = &nxt;
     }
-
-    cur = &test[0];
-    while(cur->top != nullptr) {
-        cout << cur->n << " ";
-        cur = cur->top;
+    cur->move(nx, ny);
+    if (bot != nullptr) {
+        cur->bottom = bot;
+        bot->top = cur;
     }
-    cur = &test[0];
-    //cout << cur->n << cur->top << " ";
-    cur->reverse();
-    Node* top = cur->getTop();
-    top->bottom = nullptr;
-    cur->top = nullptr;
-    cur = &test[3];
-    //cout << cur->n << cur->top << " ";
+}
 
-    while(cur->top != nullptr) {
-        cout << cur->n << " ";
-        cur = cur->top;
-    }
-    
-    return 0;
-
+int main() {
     ios_base::sync_with_stdio(0);
     cin.tie(0);
     cout.tie(0);
@@ -118,19 +95,24 @@ int main() {
         --a;
         --b;
         --c;
-        nodes.push_back(Node(i, b, a, c));
+        nodes.push_back(new Node(i, b, a, c));
     }
 
-    int turn = 0;
+    int turn = 1;
     while (1) {
         for (int i = 0; i < K; i++) {
+            Node* cur = nodes[i];
+            Node* check = cur;
+            int cnt = 0;
+
             if (turn > 1000) {
                 cout << -1;
                 return 0;
             }
-            int x = nodes[i].x;
-            int y = nodes[i].y;
-            int dir = nodes[i].dir;
+
+            int x = cur->x;
+            int y = cur->y;
+            int dir = cur->dir;
             int nx = x + dx[dir];
             int ny = y + dy[dir];
             // blue or outside
@@ -138,64 +120,72 @@ int main() {
                 int opdir = opposite(dir);
                 int rnx = x + dx[opdir];
                 int rny = y + dy[opdir];
-                nodes[i].dir = opdir;
+                cur->dir = opdir;
                 if (isOutOfRange(rnx, rny)) continue;
                 if (arr[rny][rnx] == 2) continue;
-                nodes[i].move(rnx, rny);
-                continue;
+                // red
+                if (arr[rny][rnx] == 1) {
+                    Node* top = cur->getTop();
+                    Node* bottom = cur->bottom;
+                    cur->reverse();
+                    cur->top = nullptr;
+                    top->bottom = bottom;
+                    moveAndStack(top->n, rnx, rny);
+                }
+                // white
+                else if (arr[rny][rnx] == 0) {
+                    moveAndStack(i, rnx, rny);
+                }
             } else if (arr[ny][nx] == 2) {
                 int opdir = opposite(dir);
                 int rnx = x + dx[opdir];
                 int rny = y + dy[opdir];
-                nodes[i].dir = opdir;
+                cur->dir = opdir;
                 if (isOutOfRange(rnx, rny)) continue;
                 if (arr[rny][rnx] == 2) continue;
-                nodes[i].move(rnx, rny);
-                continue;
+                //red
+                if (arr[rny][rnx] == 1) {
+                    Node* top = cur->getTop();
+                    Node* bottom = cur->bottom;
+                    cur->reverse();
+                    cur->top = nullptr;
+                    top->bottom = bottom;
+                    moveAndStack(top->n, rnx, rny);
+                }
+                // white
+                else if (arr[rny][rnx] == 0) {
+                    moveAndStack(i, rnx, rny);
+                }
             }
             // red
             else if (arr[ny][nx] == 1) {
-                // 원래 있던 자리에 있는 노드를 구한다
-                Node* bot = nullptr;
-                for (int j = 0; j < K; j++) {
-                    Node nxt = nodes[j];
-                    if (nxt.x == nx && nxt.y == ny) {
-                        bot = nxt.getTop();
-                        break;
-                    }
-                }
-                // 이전에 있던 노드들을 옮기기
-                nodes[i].move(nx, ny);
-                // 이전에 있던 노드들의 제일 꼭대기에 있는 놈 구하기
-                Node* top = nodes[i].getTop();
-                // 반대로 돌리기, 그러면 꼭대기에 있는 놈은 아래로 옴
-                nodes[i].reverse();
-                
-                //nodes[i].top = -1;
-
-                if (bot != nullptr) {
-                    //nodes[bot].top = top;
-                }
-                //nodes[top].bottom = bot;
+                Node* top = cur->getTop();
+                Node* bottom = cur->bottom;
+                cur->reverse();
+                cur->top = nullptr;
+                top->bottom = bottom;
+                moveAndStack(top->n, nx, ny);
             }
             // white
             else if (arr[ny][nx] == 0) {
-                Node* bot = nullptr;
-                for (int j = 0; j < K; j++) {
-                    Node nxt = nodes[j];
-                    if (nxt.x == nx && nxt.y == ny) {
-                        bot = nxt.getTop();
-                        break;
-                    }
-                }
-                nodes[i].move(nx, ny);
-                if (bot != nullptr) {
-                    //nodes[i].bottom = bot;
-                    //nodes[bot].top = i;
-                }
+                moveAndStack(i, nx, ny);
             }
-            ++turn;
+
+            Node* checkBot = check;
+            while (checkBot->bottom != nullptr) {
+                checkBot = checkBot->bottom;
+            }
+            while (checkBot != nullptr) {
+                ++cnt;
+                checkBot = checkBot->top;
+            }
+
+            if (cnt >= 4) {
+                cout << turn;
+                return 0;
+            }
         }
+        ++turn;
     }
 
     cout << turn;
