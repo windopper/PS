@@ -1,79 +1,41 @@
-#include <iostream>
-#include <vector>
-#include <cmath>
+#include <bits/stdc++.h>
 
 using namespace std;
+int N, M;
+const long long MOD = 10007;
 
-int t = 0;
-int weight[1001]{};
-int dp[1001]{};
-vector<vector<int>> vec(1001, vector<int>(1001, 0));
-
-int find(int x)
-{
-    if (vec[x][0] == 0)
-        return dp[x] = weight[x];
-
-    if (dp[x] == -1)
-    {
-        int max_find = 0;
-        for (int d = 1; d < vec[x][0] + 1; d++)
-        {
-            if (dp[vec[x][d]] > -1)
-            {
-                max_find = max(dp[vec[x][d]], max_find);
-                continue;
-            }
-            max_find = max(find(vec[x][d]), max_find);
-        }
-        dp[x] = weight[x] + max_find;
+// 모듈라 곱셈 역원을 계산하는 함수
+long long mod_inv(long long a, long long p) {
+    long long ans = 1, power = p - 2;
+    while (power) {
+        if (power & 1) ans = (ans * a) % p;
+        a = (a * a) % p;
+        power /= 2;
     }
-    return dp[x];
+    return ans;
 }
 
-int main()
-{
-    ios_base::sync_with_stdio(0);
-    cin.tie(0);
-    cout.tie(0);
+int main() {
+    ios_base::sync_with_stdio(0); cin.tie(0); cout.tie(0);
+    long long int N;
+    cin >> N;
+    long long int res = 0;
+    for(long long int i= N/2; i>-1; i--){
+        long long int k = N-2*i;
+        long long int a = 1;
+        long long int b = 1;
 
-    cin >> t;
-
-    for (int i = 0; i < t; i++)
-    {
-
-        int n = 0;
-        int m = 0;
-        int object = 0;
-
-        cin >> n >> m;
-
-        for (int k = 1; k < n + 1; k++)
-        {
-
-            int w = 0;
-
-            cin >> w;
-
-            dp[k] = -1;
-            weight[k] = w;
-            vec[k][0] = 0;
+        for(long long j=k; j>0; --j) {
+            a *= (i+j);
+            a %= MOD;
+            b *= j;
+            b %= MOD;
         }
-
-        for (int j = 0; j < m; j++)
-        {
-
-            int a = 0;
-            int b = 0;
-
-            cin >> a >> b;
-
-            vec[b][0] += 1;
-            vec[b][vec[b][0]] = a;
-        }
-
-        cin >> object;
-        cout << find(object) << '\n';
+		
+        // 모듈라 곱셈 역원을 적용해서 계산
+        long long int inv_b = mod_inv(b, MOD);
+        res += (a * inv_b) % MOD;
+        res %= MOD;
     }
-    return 0;
+    cout << res;
 }

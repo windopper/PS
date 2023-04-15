@@ -1,11 +1,10 @@
 #include <bits/stdc++.h>
 
 using namespace std;
-const int INF = 987654321;
 const int MAXN = 804;
-int N, M;
-int source = 801;
-int sink = 802;
+const int INF = 987654321;
+int source = 802;
+int sink = 803;
 vector<vector<int>> adj;
 int flow[MAXN][MAXN] = {0, };
 int capacity[MAXN][MAXN] = {0, };
@@ -13,6 +12,7 @@ int cost[MAXN][MAXN] = {0, };
 
 int main() {
     ios_base::sync_with_stdio(0); cin.tie(0); cout.tie(0);
+    int N, M;
     cin >> N >> M;
     adj.resize(MAXN);
     for(int i=401; i<=400+M; i++) {
@@ -30,34 +30,34 @@ int main() {
         while(t--) {
             int num, pay;
             cin >> num >> pay;
-            cost[i][num+400] = pay;
-            cost[num+400][i] = -pay;
+            cost[i][num+400] = -pay;
+            cost[num+400][i] = pay;
+
             adj[i].push_back(num+400);
             adj[num+400].push_back(i);
             capacity[i][num+400] = 1;
         }
     }
 
-    long long ans = 0;
     int cnt = 0;
-
+    long long ans = 0;
     while(1) {
-        vector<int> dist(MAXN, INF);
+        vector<int> dis(MAXN, INF);
         vector<int> parent(MAXN, -1);
-        vector<bool> inQ(MAXN, false);
+        vector<int> inQ(MAXN, false);
         queue<int> q;
         q.push(source);
-        dist[source] = 0;
-        inQ[source] = true;
+        inQ[source] = 1;
+        dis[source] = 0;
         while(!q.empty()) {
             int cur = q.front();
             q.pop();
             inQ[cur] = false;
             for(int next : adj[cur]) {
                 int c = cost[cur][next];
-                int alt = dist[cur] + c;
-                if(capacity[cur][next] - flow[cur][next] > 0 && dist[next] > alt) {
-                    dist[next] = alt;
+                int alt = c + dis[cur];
+                if(capacity[cur][next] - flow[cur][next] > 0 && dis[next] > alt) {
+                    dis[next] = alt;
                     parent[next] = cur;
                     if(!inQ[next]) {
                         q.push(next);
@@ -66,13 +66,14 @@ int main() {
                 }
             }
         }
+
         if(parent[sink] == -1) break;
         int amount = INF;
         for(int p = sink; p != source; p = parent[p]) {
             amount = min(amount, capacity[parent[p]][p] - flow[parent[p]][p]);
         }
         for(int p = sink; p != source; p = parent[p]) {
-            ans += amount * cost[parent[p]][p];
+            ans += amount * -cost[parent[p]][p];
             flow[parent[p]][p] += amount;
             flow[p][parent[p]] -= amount;
         }
