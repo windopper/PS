@@ -1,31 +1,31 @@
 #include <bits/stdc++.h>
 
 using namespace std;
-int N, M;
-set<int> arr;
 
-void solve(vector<int>& vec) {
-    if(vec.size() == M) {
-        for(int i : vec) cout << i << " ";
-        cout << '\n';
-        return;
-    }
+struct info {
+    string name;
+    int y, m, d;
+};
 
-    for(set<int>::iterator cur=arr.begin(); cur!=arr.end(); ++cur) {
-        vec.push_back(*cur);
-        solve(vec);
-        vec.pop_back();
-    }
+bool compare(info& a, info& b) {
+    if(a.y != b.y) return a.y < b.y;
+    if(a.m != b.m) return a.m < b.m;
+    return a.d < b.d;
 }
 
 int main() {
     ios_base::sync_with_stdio(0); cin.tie(0); cout.tie(0);
-    cin >> N >> M;
-    while(N--) {
-        int t;
-        cin >> t;
-        arr.insert(t);
-    }    
-    vector<int> vec;
-    solve(vec);
+    int n;
+    cin >> n;
+    vector<info> arr;
+    while(n--) {
+        string s;
+        int d, m, y;
+        cin >> s >> d >> m >> y;
+        arr.push_back({s, y, m, d});
+    }
+
+    sort(arr.begin(), arr.end(), compare);
+
+    cout << arr.back().name << '\n' << arr[0].name;
 }

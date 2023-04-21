@@ -11,7 +11,7 @@ void dfs(int cur, int post) {
     for(int i=1; i<18; i++) {
         parent[i][cur] = parent[i-1][parent[i-1][cur]];
         for(int j=1; j<=5; j++) {
-            cp[j][i][cur] = cp[j][i-1][parent[i-1][cur]] + cp[j][i-1][parent[i-1][cur]];
+            cp[j][i][cur] = cp[j][i-1][cur] | cp[j][i-1][parent[i-1][cur]];
         }
     }
 
@@ -19,7 +19,7 @@ void dfs(int cur, int post) {
         if(next == post) continue;
         parent[0][next] = cur;
         for(int i=1; i<=5; i++) {
-            cp[i][0][next] = (candies[cur] == i) + (candies[next] == i);
+            cp[i][0][next] = (candies[cur] == i) | (candies[next] == i);
         }
         depth[next] = depth[cur] + 1;
         dfs(next, cur);
@@ -38,7 +38,7 @@ void solve(int a, int b, int type) {
 
     for(int i=0; diff != 0; i++) {
         if(diff % 2 == 1) {
-            candyCnt += cp[type][i][a];
+            candyCnt |= cp[type][i][a];
             a = parent[i][a];
         }
         if (candyCnt > 0) {
@@ -51,7 +51,7 @@ void solve(int a, int b, int type) {
     if(a != b) {
         for(int i=17; i>=0; --i) {
             if(parent[i][a] != parent[i][b] && parent[i][a] != 0) {
-                candyCnt += cp[type][i][a] + cp[type][i][b];
+                candyCnt |= cp[type][i][a] | cp[type][i][b];
                 a = parent[i][a];
                 b = parent[i][b];
                 if (candyCnt > 0) {
@@ -60,7 +60,7 @@ void solve(int a, int b, int type) {
                 }
             }
         }
-        candyCnt += cp[type][0][a] + cp[type][0][b];
+        candyCnt |= cp[type][0][a] | cp[type][0][b];
         a = parent[0][a];
         b = parent[0][b];
     }
