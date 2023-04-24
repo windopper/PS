@@ -1,22 +1,22 @@
 #include <bits/stdc++.h>
 
 using namespace std;
-typedef long long ll;
+typedef unsigned long ll;
 
 int N, Q;
 const int INF = 500001;
-long long tree[INF*4];
+ll tree[INF*4];
 pair<ll, ll> lazy[INF*4];
 // {add, mul}
 // {0, 1};
-const long long MOD = 1LL << 32;
+const ll MOD = 1ul << 32;
 
 void propagate(int s, int e, int i) {
     if(lazy[i].first != 0 || lazy[i].second != 1) {
         if(s != e) {
-            lazy[i*2].first = (lazy[i].first + lazy[i*2].first * lazy[i].second) % MOD;
+            lazy[i*2].first = (lazy[i].first + (lazy[i*2].first * lazy[i].second) % MOD) % MOD;
             lazy[i*2].second = (lazy[i].second * lazy[i*2].second) % MOD;
-            lazy[i*2+1].first = (lazy[i].first + lazy[i*2+1].first * lazy[i].second) % MOD;
+            lazy[i*2+1].first = (lazy[i].first + (lazy[i*2+1].first * lazy[i].second) % MOD) % MOD;
             lazy[i*2+1].second = (lazy[i].second * lazy[i*2+1].second) % MOD;
         }
     }
@@ -96,8 +96,51 @@ void dfsOrdering(int cur = 1) {
     out[cur] = seq;
 }
 
-void updateSum(int x, int v) {
-    segUpdateSum(1, N, 1)
+void updateSum(int x, ll v) {
+    segUpdateSum(1, N, 1, in[x], out[x], v);
+}
+
+void updateSum(int l, int r, ll v) {
+    while(top[l] ^ top[r]) {
+        if(dep[top[l]] < dep[top[r]]) swap(l, r);
+        int st = top[l];
+        segUpdateSum(1, N, 1, in[st], in[l], v);
+        l = par[st];
+    }
+    if(dep[l] > dep[r]) swap(l, r);
+    segUpdateSum(1, N, 1, in[l], in[r], v);
+}
+
+void updateMul(int x, ll v) {
+    segUpdateMul(1, N, 1, in[x], out[x], v);
+}
+
+void updateMul(int l, int r, ll v) {
+    while(top[l] ^ top[r]) {
+        if(dep[top[l]] < dep[top[r]]) swap(l, r);
+        int st = top[l];
+        segUpdateMul(1, N, 1, in[st], in[l], v);
+        l = par[st];
+    }
+    if(dep[l] > dep[r]) swap(l, r);
+    segUpdateMul(1, N, 1, in[l], in[r], v);
+}
+
+ll query(int x) {
+    return segQuery(1, N, 1, in[x], out[x]);
+}
+
+ll query(int l, int r) {
+    ll ret = 0;
+    while(top[l] ^ top[r]) {
+        if(dep[top[l]] < dep[top[r]]) swap(l, r);
+        int st = top[l];
+        ret = (ret + segQuery(1, N, 1, in[st], in[l])) % MOD;
+        l = par[st];
+    }
+    if(dep[l] > dep[r]) swap(l, r);
+    ret = (ret + segQuery(1, N, 1, in[l], in[r])) % MOD;
+    return ret;
 }
 
 int main() {
@@ -116,25 +159,30 @@ int main() {
     dfsOrdering();
 
     while(Q--) {
-        int i, X, V;
-        cin >> i >> X >> V;
+        int i, X, V, t;
+        cin >> i >> X;
         if(i == 1) {
-
+            cin >> V;
+            updateSum(X, V);
         }
         else if(i == 2) {
-
+            cin >> V >> t;
+            updateSum(X, V, t);
         }
         else if(i == 3) {
-
+            cin >> V;
+            updateMul(X, V);
         }
         else if(i == 4) {
-
+            cin >> V >> t;
+            updateMul(X, V, t);
         }
         else if(i == 5) {
-
+            cout << query(X) << '\n';
         }
         else {
-
+            cin >> V;
+            cout << query(X, V) << '\n';
         }
     }
 }
