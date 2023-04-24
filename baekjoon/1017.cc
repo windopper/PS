@@ -3,11 +3,13 @@
 using namespace std;
 bool isPrime[2002];
 vector<vector<int>> adj;
+vector<pair<int, int>> arr;
 int aMatch[51];
 int bMatch[51];
 int dis[51];
 
 bool dfs(int cur) {
+    cout << arr[cur].first << "->";
     if(dis[cur]) return false;
     dis[cur] = true;
     for(int next : adj[cur]) {
@@ -24,6 +26,7 @@ int main() {
     ios_base::sync_with_stdio(0); cin.tie(0); cout.tie(0);
     int N;
     cin >> N;
+    arr.resize(N);
     for(int i=2; i<=2001; i++) {
         isPrime[i] = true;
     }
@@ -34,7 +37,7 @@ int main() {
             isPrime[j] = false;
         }
     }
-    vector<pair<int, int>> arr(N);
+    
     for(int i=0; i<N; i++) {
         int t;
         cin >> t;
@@ -55,7 +58,6 @@ int main() {
     for(int i=0; i<N; i++) {
         for(int j=i+1; j<N; j++) {
             if(isPrime[arr[i].first+arr[j].first]) {
-                cout << i << " " << j << '\n';
                 adj[i].push_back(j);
             }
         }
@@ -65,11 +67,13 @@ int main() {
     memset(bMatch, -1, sizeof(bMatch));
     set<int> ans;
     for(int i=0; i<N; i++) {
+        if(arr[i].first % 2 != 0) continue;
         memset(dis, 0, sizeof(dis));
         dfs(i);
     }
 
     for(int next : adj[firstElementIdx]) {
+        cout << arr[next].first << " ";
         memset(dis, 0, sizeof(dis));
         dis[firstElementIdx] = true;
         if(dfs(bMatch[next])) {
