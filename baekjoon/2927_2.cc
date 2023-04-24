@@ -38,8 +38,11 @@ void createBridge(int cur) {
 }
 
 void hld(int cur) {
+    vis[cur] = 1;
     sz[cur] = 1;
     for(auto &i : g[cur]) {
+        if(vis[i]) continue;
+        vis[i] = 1;
         dep[i] = dep[cur] + 1;
         par[i] = cur;
         hld(i);
@@ -49,8 +52,11 @@ void hld(int cur) {
 }
 
 void dfsOrdering(int cur) {
+    vis[cur] = 1;
     in[cur] = pv++;
     for(int next : g[cur]) {
+        if(vis[next]) continue;
+        vis[next] = 1;
         top[next] = next == g[cur][0] ? top[cur] : next;
         dfsOrdering(next);
     }
@@ -111,6 +117,7 @@ int main() {
     int Q;
     cin >> Q;
     vector<pair<string, pair<int, int>>> queries;
+    vector<string> reconstruct(Q, "");
     for(int i=0; i<Q; i++) {
         string s;
         int a, b;
@@ -123,21 +130,36 @@ int main() {
                 merge(a, b);
                 adj[a].push_back(b);
                 adj[b].push_back(a);
+                reconstruct[i] = "yes";
+            }
+            else {
+                reconstruct[i] = "no";
+            }
+        }
+        else if(s == "excursion") {
+            if(pa != pb) {
+                reconstruct[i] = "impossible";
             }
         }
     }
 
+    vis.assign(N+1, 0);
     for(int i=1; i<=N; i++) {
-        if(find(i) != find(1)) {
-            merge(1, i);
-            adj[i].push_back(1);
-            adj[1].push_back(i);
-        }
+        if(vis[i]) continue;
+        createBridge(i);
     }
 
-    createBridge(1);
-    hld(1);
-    dfsOrdering(1);
+    vis.assign(N+1, 0);
+    for(int i=1; i<=N; i++) {
+        if(vis[i]) continue;
+        hld(i);
+    }
+
+    vis.assign(N+1, 0);
+    for(int i=1; i<=N; i++) {
+        if(vis[i]) continue;
+        dfsOrdering(i);
+    }
 
     for(int i=1; i<=N; i++) {
         update(i, arr[i]);
@@ -154,21 +176,12 @@ int main() {
         int b = q.second.second;
         int pa = find(a);
         int pb = find(b);
-        if(s == "bridge") {
-            if(pa == pb) {
-                cout << "no" << '\n';
-            }
-            else {
-                merge(a, b);
-                cout << "yes" << '\n';
-            }
-        }
+        if(reconstruct[i] != "") cout << reconstruct[i] << '\n';
         else if(s == "penguins") {
             update(a, b);
         }
         else if(s == "excursion") {
-            if(pa != pb) cout << "impossible" << '\n';
-            else cout << query(a, b) << '\n';
+            cout << query(a, b) << '\n';
         }
     }
 }
