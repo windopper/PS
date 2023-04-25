@@ -4,32 +4,22 @@ using namespace std;
 
 int main() {
     ios_base::sync_with_stdio(0); cin.tie(0); cout.tie(0);
-    int n;
-    cin >> n;
-    vector<int> arr(n, 0);
-    for(int i=0; i<n; i++) {
-        cin >> arr[i];
+    int N, K;
+    cin >> N >> K;
+    bool isPrime[1001];
+    for(int i=2; i<=N; i++) {
+        isPrime[i] = true;
     }
-    int x;
-    cin >> x;
-    sort(arr.begin(), arr.end());
-    int l = 0;
-    int r = n-1;
-    int ans = 0;
-    while(l < r) {
-        if(l >= r) break;
-        int res = arr[l] + arr[r];
-        if(res > x) {
-            --r;
-        }
-        else if(res < x) {
-            ++l;
-        }
-        else {
-            ++ans;
-            --r;
-            ++l;
+    for(int i=2; i<=N; i++) {
+        if(!isPrime[i]) continue;
+        for(int j=i; j<=N; j+=i) {
+            if(!isPrime[j]) continue;
+            isPrime[j] = false;
+            --K;
+            if(K == 0) {
+                cout << j;
+                return 0;
+            }
         }
     }
-    cout << ans;
 }
