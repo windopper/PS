@@ -3,10 +3,10 @@
 using namespace std;
 int n, m;
 vector<vector<int>> adj;
-vector<vector<int>> readj;
-long long lazy[400004];
-long long tree[400004];
-long long tree2[400004];
+long long lazy[400004] = {0, };
+long long tree[400004] = {0, };
+long long lazy2[400004] = {0, };
+long long tree2[400004] = {0, };
 int in[100001], out[100001];
 int seq = 0;
 
@@ -64,8 +64,8 @@ long long query(int s, int e, int i, int target) {
 }
 
 long long query2(int s, int e, int i, int l, int r) {
-    if(s > l || e < r) return 0;
-    if(s == e) return tree2[i];
+    if(s > r || e < l) return 0;
+    if(s >= l && e <= r) return tree2[i];
     int m = (s+e)/2;
     return query2(s, m, i*2, l, r) + query2(m+1, e, i*2+1, l, r);
 }
@@ -74,12 +74,10 @@ int main() {
     ios_base::sync_with_stdio(0); cin.tie(0); cout.tie(0);
     cin >> n >> m;
     adj.resize(n+1);
-    readj.resize(n+1);
     for(int i=1; i<=n; i++) {
-        int t;cin >> t;
+        int t; cin >> t;
         if(t != -1) {
             adj[t].push_back(i);
-            readj[i].push_back(t);
         }
     }
 
@@ -103,7 +101,8 @@ int main() {
             cout << query(1, n, 1, in[b]) + query2(1, n, 1, in[b], out[b]) << '\n';
         }
         else {
-            up = 1 - up;
+            if(up) up = false;
+            else up = true;
         }
     }
 }
