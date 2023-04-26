@@ -4,17 +4,14 @@ using namespace std;
 bool isPrime[2002];
 vector<vector<int>> adj;
 vector<pair<int, int>> arr;
-int aMatch[51];
-int bMatch[51];
-int dis[51];
+int bMatch[1001];
+int dis[1001];
 
 bool dfs(int cur) {
-    cout << arr[cur].first << "->";
     if(dis[cur]) return false;
     dis[cur] = true;
     for(int next : adj[cur]) {
         if(bMatch[next] == -1 || dfs(bMatch[next])) {
-            aMatch[cur] = next;
             bMatch[next] = cur;
             return true;
         }
@@ -26,7 +23,7 @@ int main() {
     ios_base::sync_with_stdio(0); cin.tie(0); cout.tie(0);
     int N;
     cin >> N;
-    arr.resize(N);
+    adj.resize(1001);
     for(int i=2; i<=2001; i++) {
         isPrime[i] = true;
     }
@@ -38,51 +35,60 @@ int main() {
         }
     }
     
+    bool isFirstEven = false;
+    vector<int> arr1;
+    vector<int> arr2;
     for(int i=0; i<N; i++) {
         int t;
         cin >> t;
-        arr[i] = {t, i};
-    }
-
-    sort(arr.begin(), arr.end());
-
-    int firstElementIdx = -1;
-    for(int i=0; i<N; i++) {
-        if(arr[i].second == 0) {
-            firstElementIdx = i;
-            break;
+        if(i == 0) {
+            if(t % 2 == 1) isFirstEven = false;
+            else isFirstEven = true;
         }
-    }
 
-    adj.resize(N+1);
-    for(int i=0; i<N; i++) {
-        for(int j=i+1; j<N; j++) {
-            if(isPrime[arr[i].first+arr[j].first]) {
-                adj[i].push_back(j);
+        if(isFirstEven) {
+            // arr1 짝수
+            if(t % 2 == 0) {
+                arr1.push_back(t);
+            }
+            else {
+                arr2.push_back(t);
+            }
+        }
+        else {
+            // arr1 홀수
+            if(t % 2 == 0) {
+                arr2.push_back(t);
+            }
+            else {
+                arr1.push_back(t);
             }
         }
     }
 
-    memset(aMatch, -1, sizeof(aMatch));
-    memset(bMatch, -1, sizeof(bMatch));
-    set<int> ans;
-    for(int i=0; i<N; i++) {
-        if(arr[i].first % 2 != 0) continue;
-        memset(dis, 0, sizeof(dis));
-        dfs(i);
-    }
-
-    for(int next : adj[firstElementIdx]) {
-        cout << arr[next].first << " ";
-        memset(dis, 0, sizeof(dis));
-        dis[firstElementIdx] = true;
-        if(dfs(bMatch[next])) {
-            ans.insert(next);
+    for(int i=0; i<arr1.size(); i++) {
+        for(int j=0; j<arr2.size(); j++) {
+            if(isPrime[arr1[i] + arr2[j]]) {
+                adj[arr1[i]].push_back(arr2[j]);
+            }
         }
     }
 
-    for(set<int>::iterator it=ans.begin(); it!=ans.end(); it++) {
-        cout << *it << " ";
+    vector<int> ans;
+    for(int next : adj[arr1[0]]) {
+        memset(bMatch, -1, sizeof(bMatch));
+        bMatch[next] = arr1[0];
+        int cnt = 0;
+        for(int i=0; i<arr1.size(); i++) {
+            if(i == 0) continue;
+            memset(dis, 0, sizeof(dis));
+            if(dfs(arr1[i])) cout << "done";
+        }
+        cout << '\n';
+        if(cnt == arr1.size()) ans.push_back(next);
     }
+
+    sort(ans.begin(), ans.end());
+    for(int cur : ans) cout << cur << " ";
     if(ans.empty()) cout << -1;
 }
