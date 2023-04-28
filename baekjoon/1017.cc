@@ -66,6 +66,11 @@ int main() {
         }
     }
 
+    if(arr1.size() != arr2.size()) {
+        cout << -1;
+        return 0;
+    }
+
     for(int i=0; i<arr1.size(); i++) {
         for(int j=0; j<arr2.size(); j++) {
             if(isPrime[arr1[i] + arr2[j]]) {
@@ -82,10 +87,11 @@ int main() {
         for(int i=0; i<arr1.size(); i++) {
             if(i == 0) continue;
             memset(dis, 0, sizeof(dis));
-            if(dfs(arr1[i])) cout << "done";
+            dis[next] = 1;
+            dis[arr1[0]] = 1;
+            if(dfs(arr1[i])) ++cnt;
         }
-        cout << '\n';
-        if(cnt == arr1.size()) ans.push_back(next);
+        if(cnt == arr1.size()-1) ans.push_back(next);
     }
 
     sort(ans.begin(), ans.end());
