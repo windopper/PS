@@ -3,7 +3,7 @@
 using namespace std;
 typedef long long ll;
 
-const int INF = 1000001;
+const int INF = 1010101;
 
 struct Node {
     ll mx, mx2, mxcnt, sum;
@@ -20,9 +20,9 @@ Node merge(Node l, Node r) {
 
 void propagate(int s, int e, int i) {
     if(s == e) return;
-    for(int next : {i*2, i*2+1}) {
+    for(auto next : {i*2, i*2+1}) {
         if(tree[next].mx > tree[i].mx) {
-            tree[next].sum = (tree[next].mx - tree[i].mx) * tree[next].mxcnt;
+            tree[next].sum -= (tree[next].mx - tree[i].mx) * tree[next].mxcnt;
             tree[next].mx = tree[i].mx;
         }
     }
@@ -81,10 +81,10 @@ int main() {
     int M;
     cin >> M;
     for(int i=0; i<M; i++) {
-        int a, b, c;
+        ll a, b, c;
         cin >> a >> b >> c;
         if(a == 1) {
-            int d;
+            ll d;
             cin >> d;
             update(1, N, 1, b, c, d);
         }
