@@ -8,9 +8,9 @@ struct Node {
 };
 // L -> 0 R -> 1
 
-Node tree[1 << 18];
-int base = 1 << 17;
-bool arr[200001];
+Node tree[808080];
+int base = 1 << 19;
+bool arr[200001] = {0, };
 
 Node f(Node& l, Node& r) {
     int lval, rval, val, lvalll, lvalrr, rvalll, rvalrr, valll, valrr;
@@ -61,6 +61,7 @@ Node f(Node& l, Node& r) {
 }
 
 void update(int i) {
+    arr[i] ^= 1;
     int x = i;
     i |= base;
     tree[i] = {1, 1, 1, x, x, x, x, x, x};
@@ -69,17 +70,39 @@ void update(int i) {
     }
 }
 
+void init(int s, int e, int i) {
+    if(s == e) {
+        tree[i] = {1, 1, 1, s, s, s, s, s, s};
+        return;
+    }
+    int m = (s+e) >> 1;
+    init(s, m, i*2);
+    init(m+1, e, i*2+1);
+    tree[i] = f(tree[i << 1] , tree[i << 1 | 1]);
+}
+
+void update(int s, int e, int i, int ui) {
+    if(s > ui || e < ui) return;
+    if(s == e) {
+        arr[s] ^= 1;
+        tree[i] = {1, 1, 1, s, s, s, s, s, s};
+        return;
+    }
+    int m = (s+e) >> 1;
+    update(s, m, i*2, ui);
+    update(m+1, e, i*2+1, ui);
+    tree[i] = f(tree[i << 1] , tree[i << 1 | 1]);
+}
+
 int main() {
     ios_base::sync_with_stdio(0); cin.tie(0); cout.tie(0);
     int N, Q;
     cin >> N >> Q;
-    memset(arr, false, sizeof(arr));
-    for(int i=1; i<=N; i++) update(i);
+    init(1, N, 1);
     while(Q--) {
         int t;
         cin >> t;
-        arr[t] = arr[t] ? false : true;
-        update(t);
+        update(1, N, 1, t);
         cout << tree[1].val << '\n';
     }
 }
