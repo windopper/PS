@@ -1,9 +1,7 @@
-def multiply_2(x):
-    return x * 2
-
-temp = [1, 2, 3, 4, 5]
-
-temp = map(multiply_2, temp)
-
-for i in temp:
-    print(i)
+set1 = {10, 20, 30}
+set2 = [70] + list(set1)
+set2.insert(3, 80)
+temp = set2[2];
+set2[2] = set2[4];
+set2[4] = temp;
+print(set2)
