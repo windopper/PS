@@ -2,34 +2,31 @@
 
 using namespace std;
 
-vector<int> solve(vector<int>& arr, int l, int r) {
-    vector<int> sorted(arr.size());
-    if(l < r) {
-        int m = (l + r) >> 1;
-        solve(arr, l, m);
-        solve(arr, m+1, r);
-        int s = l; int e = m+1;
-        for(int i=l; i<=r; i++) {
-            if(s <= m && arr[s] <= arr[e]) {
-                sorted[i] = arr[s++];
-            }
-            else {
-                sorted[i] = arr[e++];
-            }
-        }
-        for(int i=l; i<=r; i++) {
-            arr[i] = sorted[i];
-        }
-    }
-    return sorted;
-}
+vector<string> solution(int n, vector<int> arr1, vector<int> arr2) {
+    vector<string> answer;
 
-int main() {
-    ios_base::sync_with_stdio(0); cin.tie(0); cout.tie(0);
-    int N;
-    cin >> N;
-    vector<int> arr(N);
-    for(int i=0; i<N; i++) cin >> arr[i];
-    vector<int> sorted = solve(arr, 0, arr.size() - 1);
-    for(int cur : sorted) cout << cur << " ";
+    for (int i = 0; i < arr1.size(); i++) {
+        string str = bitset<8>(arr1[i]).to_string();
+        string str2 = bitset<8>(arr2[i]).to_string();
+
+        string ans = "";
+
+        for (int j = 0; j < n; j++) {
+            if (str[j] == '0')
+                ans += ' ';
+            else if (str[j] == '1')
+                ans += '#';
+        }
+
+        for (int k = 0; k < n; k++) {
+            if (str2[k] == '0')
+                ans[k] = ' ';
+            else if (str2[k] == '1')
+                ans[k] = '#';
+        }
+
+        answer.push_back(ans);
+    }
+
+    return answer;
 }

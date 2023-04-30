@@ -9,13 +9,12 @@ struct Node {
 // L -> 0 R -> 1
 
 Node tree[808080];
-int base = 1 << 19;
-bool arr[200001] = {0, };
+bool arr[202020] = {0, };
 
 Node f(Node& l, Node& r) {
     int lval, rval, val, lvalll, lvalrr, rvalll, rvalrr, valll, valrr;
 
-    if(l.lvalrr + 1 == r.lvalll && arr[l.lvalrr] != arr[r.lvalll] && l.lval <= l.lval + r.lval) {
+    if(l.lvalrr + 1 == r.lvalll && arr[l.lvalrr] != arr[r.lvalll]) {
         lval = l.lval + r.lval;
         lvalll = l.lvalll;
         lvalrr = r.lvalrr;
@@ -26,7 +25,7 @@ Node f(Node& l, Node& r) {
         lvalrr = l.lvalrr;
     }
     
-    if(l.rvalrr + 1 == r.rvalll && arr[l.rvalrr] != arr[r.rvalll] && r.rval <= r.rval + l.rval) {
+    if(l.rvalrr + 1 == r.rvalll && arr[l.rvalrr] != arr[r.rvalll]) {
         rval = r.rval + l.rval;
         rvalll = l.rvalll;
         rvalrr = r.rvalrr;
@@ -58,16 +57,6 @@ Node f(Node& l, Node& r) {
     }
     //cout << val <<" ";
     return {lval, rval, val, lvalll, lvalrr, rvalll, rvalrr, valll, valrr};
-}
-
-void update(int i) {
-    arr[i] ^= 1;
-    int x = i;
-    i |= base;
-    tree[i] = {1, 1, 1, x, x, x, x, x, x};
-    while(i >>= 1) {
-        tree[i] = f(tree[i << 1] , tree[i << 1 | 1]);
-    }
 }
 
 void init(int s, int e, int i) {
