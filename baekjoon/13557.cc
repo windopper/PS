@@ -2,7 +2,7 @@
 
 using namespace std;
 typedef long long ll;
-const ll INF = 1e11;
+const ll INF = 1e9;
 int N;
 
 struct Node {
