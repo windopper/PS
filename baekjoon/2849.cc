@@ -4,64 +4,32 @@ using namespace std;
 typedef long long ll;
 int N;
 struct Node { 
-    int lval, rval, val, lvalll, lvalrr, rvalll, rvalrr, valll, valrr;
+    int lval, rval, lvalc, rvalc, val, perf;
 };
 // L -> 0 R -> 1
 
-Node tree[808080];
-bool arr[202020] = {0, };
+bool arr[200001];
+Node tree[800004];
 
 Node f(Node& l, Node& r) {
-    int lval, rval, val, lvalll, lvalrr, rvalll, rvalrr, valll, valrr;
-
-    if(l.lvalrr + 1 == r.lvalll && arr[l.lvalrr] != arr[r.lvalll]) {
-        lval = l.lval + r.lval;
-        lvalll = l.lvalll;
-        lvalrr = r.lvalrr;
+    int lval, rval, lvalc, rvalc, val, perf;
+    perf = 0;
+    val = max(l.val, r.val);
+    lval = l.lval;
+    rval = r.rval;
+    if(l.rvalc != r.lvalc) {
+        int tmp = l.rval + r.lval;
+        if(l.perf && r.perf) perf = 1;
+        if(l.perf) lval = tmp;
+        if(r.perf) rval = tmp;
+        val = max(tmp, val);
     }
-    else {
-        lval = l.lval;
-        lvalll = l.lvalll;
-        lvalrr = l.lvalrr;
-    }
-    
-    if(l.rvalrr + 1 == r.rvalll && arr[l.rvalrr] != arr[r.rvalll]) {
-        rval = r.rval + l.rval;
-        rvalll = l.rvalll;
-        rvalrr = r.rvalrr;
-    }
-    else {
-        rval = r.rval;
-        rvalll = r.rvalll;
-        rvalrr = r.rvalrr;
-    }
-
-    int t1 = l.rval + r.lval;
-    int t2 = l.val;
-    int t3 = r.val;
-
-    if(arr[l.rvalrr] != arr[r.lvalll] && t2 <= t1 && t3 <= t1) {
-        val = l.rval + r.lval;
-        valll = l.rvalll;
-        valrr = r.lvalrr;
-    }
-    else if(t1 <= t3 && t2 <= t3) {
-        val = r.val;
-        valll = r.valll;
-        valrr = r.valrr;
-    }
-    else {
-        val = l.val;
-        valll = l.valll;
-        valrr = l.valrr;
-    }
-    //cout << val <<" ";
-    return {lval, rval, val, lvalll, lvalrr, rvalll, rvalrr, valll, valrr};
+    return {lval, rval, l.lvalc, r.rvalc, val, perf};
 }
 
 void init(int s, int e, int i) {
     if(s == e) {
-        tree[i] = {1, 1, 1, s, s, s, s, s, s};
+        tree[i] = {1, 1, arr[s], arr[s], 1, 1};
         return;
     }
     int m = (s+e) >> 1;
@@ -74,7 +42,7 @@ void update(int s, int e, int i, int ui) {
     if(s > ui || e < ui) return;
     if(s == e) {
         arr[s] ^= 1;
-        tree[i] = {1, 1, 1, s, s, s, s, s, s};
+        tree[i] = {1, 1, arr[s], arr[s], 1, 1};
         return;
     }
     int m = (s+e) >> 1;
