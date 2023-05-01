@@ -2,31 +2,50 @@
 
 using namespace std;
 
-vector<string> solution(int n, vector<int> arr1, vector<int> arr2) {
-    vector<string> answer;
-
-    for (int i = 0; i < arr1.size(); i++) {
-        string str = bitset<8>(arr1[i]).to_string();
-        string str2 = bitset<8>(arr2[i]).to_string();
-
-        string ans = "";
-
-        for (int j = 0; j < n; j++) {
-            if (str[j] == '0')
-                ans += ' ';
-            else if (str[j] == '1')
-                ans += '#';
+int main() {
+    ios_base::sync_with_stdio(0); cin.tie(0); cout.tie(0);
+    int N, M;
+    cin >> N >> M;
+    vector<int> miarr(N);
+    vector<int> mxarr(N);
+    for(int i=0; i<N; i++) {
+        int t; cin >> t;
+        if(t < 0) miarr.push_back(t);
+        else mxarr.push_back(t);
+    }
+    sort(miarr.begin(), miarr.end(), greater<>());
+    sort(mxarr.begin(), mxarr.end());
+    int ans = 0;
+    int l = miarr.size() - 1;
+    int r = 0;
+    while(1) {
+        int cnt = 0;
+        if(abs(miarr.back()) < mxarr.back()) {
+            while(l < miarr.size() && cnt <= M) {
+                --l;
+                ++cnt;
+            }
+            if(l < miarr.size()) {
+                ans += -miarr[l-1] * 2;
+            }
+            else {
+                ans += -miarr[l-1];
+            }
+        }
+        else {
+            while(r < mxarr.size() && cnt <= M) {
+                ++r;
+                ++cnt;
+            }
+            if(r < mxarr.size()) {
+                ans += mxarr[r-1] * 2;
+            }
         }
 
-        for (int k = 0; k < n; k++) {
-            if (str2[k] == '0')
-                ans[k] = ' ';
-            else if (str2[k] == '1')
-                ans[k] = '#';
+        if(l < miarr.size() || r < mxarr.size()) {
+            ans += 
         }
-
-        answer.push_back(ans);
     }
 
-    return answer;
+    cout << ans;
 }
