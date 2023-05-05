@@ -5,24 +5,35 @@ int N, M;
 int arr[81];
 unordered_map<int, int> dp[81];
 int ans = 0;
-
 int solve(int cur, int val) {
-    if(cur >= N*M) return 0;
+    if(cur >= N*M) {
+        vector<int> state(M, 0);
+        for(int i=0; i<M && val; i++) {
+            state[i] = val % 10;
+            val /= 10;
+        }
+        unordered_set<int> us;
+        for(int x : state) {
+        if(x) us.insert(x);
+        }
+        if(us.size() <= 1) return 0;
+        return 987654321;
+    };
 
     if(dp[cur].find(val) != dp[cur].end()) return dp[cur][val];
     dp[cur][val] = 987654321;
     int &ret = dp[cur][val];
 
-    vector<int> state(M);
+    vector<int> state(M, 0);
     for(int i=0; i<M && val; i++) {
         state[i] = val % 10;
         val /= 10;
     }
 
     // 현재 칸에 추가하는 경우
-    vector<int> nextArr(M);
+    vector<int> nextArr(M, 0);
     for(int i=1; i<M; i++) nextArr[i] = state[i-1];
-    int up = state.back();
+    int up = state[M-1];
     int left = cur % M ? state[0] : 0;
     // 윗칸이랑 합칠때
     if(up) {
@@ -34,7 +45,7 @@ int solve(int cur, int val) {
         nextArr[0] = left;
     }
     else {
-        nextArr[0] = 999;
+        nextArr[0] = 99;
     }
 
     // renumbering
@@ -53,25 +64,17 @@ int solve(int cur, int val) {
 
     ret = min(ret, solve(cur + 1, nextVal) + arr[cur]);
 
-    // 한 집합 밖에 없을 때
-    unordered_set<int> us;
-    for(int i=0; i<M; i++) {
-        if(nextArr[i]) us.insert(nextArr[i]);
-    }
-    if(us.size() == 1) {
-        ans = min(ans, solve(cur + 1, nextVal));
-    }
-
     // 현재 칸에 추가하지 않는 경우
     // 제일 윗칸이 혼자 있을 경우
     bool UpAlone = true;
-    for(int i=0; i<M-1; i++) if(state[i] == state.back()) {
-        UpAlone = false;
-        break;
+    for(int i=0; i<M-1; i++) {
+        if(state[i] == state.back()) {
+            UpAlone = false;
+            break;
+        }
     }
 
     if(!(state[M-1] && UpAlone)) {
-        nextArr.clear();
         for(int i=1; i<M; i++) nextArr[i] = state[i-1];
         nextArr[0] = 0;
         unordered_map<int, int> sq2;
@@ -87,7 +90,12 @@ int solve(int cur, int val) {
         ret = min(ret, solve(cur + 1, nextVal));
     }   
 
-    cout << cur << " " << ret << '\n';
+    unordered_set<int> us;
+    for(int x : state) {
+        if(x) us.insert(x);
+    }
+    if(us.size() <= 1) ret = min(ret, 0);
+
     return ret;
 }
 
@@ -97,7 +105,5 @@ int main() {
     for(int i=0; i<N*M; i++) {
         cin >> arr[i];
     }
-
-    solve(0, 0);
-    cout << ans;
+    cout << solve(0, 0);
 }
