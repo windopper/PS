@@ -3,52 +3,35 @@
 using namespace std;
 const int MOD = 9901;
 int N, M;
-int dp[15][15][1 << 17];
+int dp[15][15][1 << 14];
 
-int solve(int x, int y, long long st) {
-    cout << x << " " << y << " " << st << '\n';
-    if (x == 0 && y == N) {
-        if(!(st & (1 << 0)) ^ !(st & (1 << M-1))) return 1;
-        return 0;
-    }
-    // int &ret = dp[y][x][st];
-    // if (ret != -1) return ret;
-    int ret = 0;
-
-    // 바로 옆이 빈 공간일 때
-    if (!(st & (1 << 0)) && x >= 1) {
-        // 다음 줄로 가야되나
-        if (x + 1 >= M) {
-            // 바로 위에 줄이 차있으면 가능
-            if (st & (1 << (M - 1)) || y == 0) {
-                ret += solve(0, y + 1, (st << 1) & ~(1 << M) | 3);
-            }
-        } else {
-            if (st & (1 << (M - 1)) || y == 0) {
-                ret += solve(x + 1, y, (st << 1) & ~(1 << M) | 3);
-            }
+int solve(int x, int y, int st) {
+    if(x >= 0 && y >= N && st == 0) return 1;
+    if(x >= 0 && y >= N) return 0;
+    int &ret = dp[y][x][st];
+    if(ret != -1) return ret;
+    ret = 0;
+    if(st & 1) {
+        if(x + 1 >= M) {
+            ret += solve(0, y + 1, st >> 1);
+        }
+        else {
+            ret += solve(x + 1, y, st >> 1);
         }
     }
-    // 바로 위줄이 빈 공간이라면
-    if (!(st & (1 << M - 1)) && y >= 1) {
-        // 다음 줄로 가야되나
-        if (x + 1 >= M) {
-            ret += solve(0, y + 1, (st << 1) & ~(1 << M) | 1);
-        } else {
-            ret += solve(x + 1, y, (st << 1) & ~(1 << M) | 1);
+    else {
+        if(x + 1 >= M) {
+            ret += solve(0, y + 1, (st >> 1) | (1 << (M-1)));
+        }
+        else {
+            ret += solve(x+1, y, (st >> 1) | (1 << (M-1)));
+        }
+        if(x + 1 < M && (st & 2) == 0) {
+            if(x + 2 >= M) ret += solve(0, y + 1, st >> 2);
+            else ret += solve(x+2, y, st >> 2);
         }
     }
-
-    // 바로 위줄이 있을 경우 또는 첫번째 줄일 경우
-    if (st & (1 << M - 1) || (y == 0)) {
-        if (x + 1 >= M) {
-            ret += solve(0, y + 1, (st << 1) & ~(1 << M));
-        } else {
-            ret += solve(x + 1, y, (st << 1) & ~(1 << M));
-        }
-    }
-    ret %= MOD;
-    return ret;
+    return ret %= MOD;
 }
 
 int main() {
