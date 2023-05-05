@@ -15,15 +15,16 @@ int convertToMask(vector<int>& arr) {
     return res;
 }
 
-vector<int> norm(vector<int> arr) {
+vector<int> norm(vector<int>& arr) {
+    vector<int> ret(S);
     unordered_map<int, int> us;
     int t = 1;
     for(int i=0; i<S; i++) {
         if(arr[i] == 0) continue;
         if(us.find(arr[i]) == us.end()) us[arr[i]] = t++;
-        arr[i] = us[arr[i]];
+        ret[i] = us[arr[i]];
     }
-    return arr;
+    return ret;
 }
 
 bool hasUpAlone(vector<int>& arr) {
@@ -91,7 +92,12 @@ int solve(int cur, int st, int con) {
     int upCon = connection.back();
     int leftCon = cur % S ? connection[0] : 0;
 
+    int up = status.back();
+    int left = cur % S ? status[0] : 0;
+
     if(arr[cur] == '#') {
+        if(left == 1 || left == 3 || left == 6) return 0;
+        if(up >= 4 && up <= 6) return 0;
         if(!(upCon && hasUpAlone(connection))) {
             nextArr[0] = 0;
             nextConnection[0] = 0;
@@ -100,9 +106,6 @@ int solve(int cur, int st, int con) {
         }
         return ret;
     }
-
-    int up = status.back();
-    int left = cur % S ? status[0] : 0;
 
     // 위쪽과 연결할 수 있다면
     if(up >= 4 && up <= 6) {
@@ -146,7 +149,7 @@ int solve(int cur, int st, int con) {
                 newArr[0] = 1;
                 ret += solve(cur + 1, convertToMask(newArr), connectionMask);
             }
-            
+
             newArr[0] = 5;
             ret += solve(cur + 1, convertToMask(newArr), connectionMask);
         }
@@ -159,7 +162,7 @@ int solve(int cur, int st, int con) {
         newConnection[0] = 0;
         vector<int> temp = norm(newConnection);
         int connectionMask = convertToMask(temp);
-
+        
         ret += solve(cur + 1, convertToMask(newArr), connectionMask);
 
         if(cur % S != S-1) {
@@ -183,5 +186,5 @@ int main() {
         string s; cin >> s;
         arr += s;
     }
-    cout << solve(1, 3, 1) + solve(1, 4, 1); 
+    cout << solve(1, 3, 1) + solve(1, 4, 1);
 }
