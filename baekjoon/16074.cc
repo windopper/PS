@@ -27,19 +27,24 @@ int main() {
 
     for(int i=1; i<501; i++) for(int j=1; j<501; j++) id[i][j] = idx++;
 
+    vector<int> harr;
     for(int i=1; i<=m; i++) {
         for(int j=1; j<=n; j++) {
             int h; cin >> h;
+            harr.push_back(h);
             heights.push_back({h, j, i});
             hh[i][j] = h;
         }
     }
 
-    sort(heights.begin(), heights.end(), compare);
-    
-    idx = 0;
-    for(vi v : heights) {
-        seq[v[2]][v[1]] = idx++;
+    sort(harr.begin(), harr.end());
+    harr.erase(unique(harr.begin(), harr.end()), harr.end());
+
+    vector<vector<vi>> loops(m*n-1);
+    for(vi& v : heights) {
+        int& h = v[0];
+        h = lower_bound(harr.begin(), harr.end(), h) - harr.begin();
+        loops[h].push_back({v[1], v[2]});
     }
 
     vector<vector<int>> queries;
@@ -53,7 +58,7 @@ int main() {
     vector<int> r;
     for(int i=0; i<q; i++) {
         l.push_back(0);
-        r.push_back(m*n-1);
+        r.push_back(harr.size()-1);
     }
 
     vector<int> ans(q);
@@ -63,7 +68,6 @@ int main() {
         vector<vector<int>> g(m*n+1);
         int flag = 0;
         for(int i=0; i<q; i++) {
-            // 
             if(l[i] != r[i]) {
                 flag = 1;
                 // setting indiviaul binary search process
@@ -75,30 +79,30 @@ int main() {
         // reset all disjoint set
         for(int i=0; i<250001; i++) parent[i] = i;
 
-        for(int i=0; i<=m*n-1; i++) {
-            int h = heights[i][0];
-            int x = heights[i][1];
-            int y = heights[i][2];
-            int cur = id[y][x];
-        
-            for(int j=0; j<4; j++) {
-                int nx = x + dx[j];
-                int ny = y + dy[j];
-                if(nx<1||nx>n||ny<1||ny>m) continue;
-                // continue when current height is lower than adjacent mountains height
-                if(h < hh[ny][nx]) continue;
-                int next = id[ny][nx];
-                int fcur = find(cur);
-                int fnext = find(next);
+        for(int i=0; i<=harr.size()-1; i++) {
+            int h = harr[i];
+            for(vi v : loops[i]) {
+                int x = v[0];
+                int y = v[1];
+                int cur = id[y][x];
+                for(int j=0; j<4; j++) {
+                    int nx = x + dx[j];
+                    int ny = y + dy[j];
+                    if(nx<1||nx>n||ny<1||ny>m) continue;
+                    // continue when current height is lower than adjacent mountains height
+                    if(h < hh[ny][nx]) continue;
+                    int next = id[ny][nx];
+                    int fcur = find(cur);
+                    int fnext = find(next);
 
-                // when parents are different let's merge
-                if(fnext != fcur) {
-                    //cout << "merge : " << x << " " << y << " to " << nx << " " << ny << '\n';
-                    if(fcur > fnext) swap(fcur, fnext);
-                    parent[fnext] = fcur;
+                    // when parents are different let's merge
+                    if(fnext != fcur) {
+                        //cout << "merge : " << x << " " << y << " to " << nx << " " << ny << '\n';
+                        if(fcur > fnext) swap(fcur, fnext);
+                        parent[fnext] = fcur;
+                    }
                 }
             }
-
             for(auto next : g[i]) {
                 vi q = queries[next];
                 int ax = q[0];
