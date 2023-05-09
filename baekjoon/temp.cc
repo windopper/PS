@@ -1,44 +1,58 @@
 #include <bits/stdc++.h>
 
 using namespace std;
-int N;
-vector<int> arr;
-bool VIP[51];
-int dp[51][3];
-vector<bool> vi(51, false);
 
-int solve(int cur, int loc) {
-    if(cur > N) return 1;
-    int &ret = dp[cur][loc];
-    if(ret != -1) return ret;
-    ret = 0;
+vector<vector<pair<int, int>>> g;
+vector<int> vis1;
+vector<int> vis2;
+unordered_map<int, bool> isGates;
+int minVal = numeric_limits<int>::max();
 
-    if(loc != 2) {
-        ret += solve(cur + 1, 1);
+int solve(int cur, int summit, bool done, int intensity) {
+    if(!done && isGates[cur]) {
+        done = true;
     }
-    else if(VIP[cur]) return 0;
-
-    if(cur - 1 > 0 && loc != 1) {
-        ret += solve(cur + 1, 0);
+    if(done && cur == summit) {
+        return intensity;
     }
 
-    if(cur + 1 <= N) {
-        ret += solve(cur + 1, 2);
+    int ret = numeric_limits<int>::max();
+    for(pair<int ,int> next : g[cur]) {
+        if(isGates[next.first] && summit != next.first) continue;
+        if(!done && vis1[next.first]) continue;
+        if(done && vis2[next.first]) continue;
+        if(!done) vis1[next.first] = 1;
+        if(done) vis2[next.first] = 1;
+        if(minVal <= next.second) continue;
+        ret = min(ret, solve(next.first, summit, done, max(intensity, next.second)));
+        if(!done) vis1[next.first] = 0;
+        if(done) vis2[next.first] = 0;
     }
     return ret;
 }
 
-int main() {
-    ios_base::sync_with_stdio(0); cin.tie(0); cout.tie(0);
-    memset(dp, -1, sizeof(dp));
-    cin >> N;
-    arr.resize(N+1);
-    int M;
-    cin >> M;
-    for(int i=0; i<M; i++) {
-        int t;
-        cin >> t;
-        VIP[t] = true;
+vector<int> solution(int n, vector<vector<int>> paths, vector<int> gates, vector<int> summits) {
+    g.resize(10001);
+    vis1.assign(10001, 0);
+    vis2.assign(10001, 0);
+    for(vector<int> p : paths) {
+        g[p[0]].push_back({p[1], p[2]});
+        g[p[1]].push_back({p[0], p[2]});
     }
-    cout << solve(1, 1);
+
+    for(int gate : gates) {
+        isGates[gate] = true;
+    }
+
+    vector<int> answer(2);
+    for (int s : summits) {
+        int val = solve(s, s, false, 0);
+        if (minVal > val) {
+            minVal = val;
+            answer[0] = s;
+            answer[1] = val;
+        }
+        cout << s << " " << val << '\n';
+    }
+    return answer;
 }
