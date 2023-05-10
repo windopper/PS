@@ -2,60 +2,103 @@
 
 using namespace std;
 
-vector<vector<pair<int, int>>> g;
-vector<int> vis;
-vector<bool> isGates(50001);
-vector<bool> isSummit(50001);
-int minVal = numeric_limits<int>::max();
-vector<int> answer(2, 987654321);
-
-void solve(vector<int>& gates) {
-    priority_queue<pair<int, int>> pq;
-    vis.assign(50001, 987654321);
-    for (int gate : gates) {
-        pq.push({0, gate});
-        vis[gate] = 0;
+void shiftRow(vector<vector<int>>& rc) {
+    int h = rc.size();
+    int w = rc[0].size();
+    vector<int> temp(w);
+    for(int j=0; j<w; j++) {
+        temp[j] = rc[h-1][j];
     }
-    while (!pq.empty()) {
-        int w = pq.top().first;
-        int cur = pq.top().second;
-        pq.pop();
-        if (minVal < w) {
-            break;
+    for(int i=h-1; i>0; i--) {
+        for(int j=0; j<w; j++) {
+            rc[i][j] = rc[i-1][j];
         }
-        if (isSummit[cur]) {
-            if (minVal > w) {
-                minVal = w;
-                answer[0] = cur;
-                answer[1] = w;
-            } else if (minVal == w && answer[0] > cur) {
-                answer[0] = cur;
-            }
-        }
-        if (vis[cur] < w || isSummit[cur]) continue;
-        for (pair<int, int> next : g[cur]) {
-            int alt = max(w, next.second);
-            if (minVal < alt) continue;
-            if (vis[next.first] > alt) {
-                vis[next.first] = alt;
-                pq.push({alt, next.first});
-            }
-        }
+    }
+    for(int j=0; j<w; j++) {
+        rc[0][j] = temp[j];
     }
 }
 
-vector<int> solution(int n, vector<vector<int>> paths, vector<int> gates, vector<int> summits) {
-    g.resize(50001);
-    for (vector<int> p : paths) {
-        g[p[0]].push_back({p[1], p[2]});
-        g[p[1]].push_back({p[0], p[2]});
+void rotate(vector<vector<int>>& rc) {
+    int temp = rc[0][0];
+    int h = rc.size();
+    int w = rc[0].size();
+    for(int i=1; i<h; i++) {
+        rc[i-1][0] = rc[i][0];
     }
-    for (int gate : gates) {
-        isGates[gate] = true;
+    for(int i=1; i<w; i++) {
+        rc[h-1][i-1] = rc[h-1][i];
     }
-    for (int summit : summits) {
-        isSummit[summit] = true;
+    for(int i=h-1; i>0; --i) {
+        rc[i][w-1] = rc[i-1][w-1];
     }
-    solve(gates);
-    return answer;
+    for(int i=w-1; i>0; i--) {
+        rc[0][i] = rc[0][i-1];
+    }
+    rc[0][1] = temp;
+}
+
+vector<vector<int>> solution(vector<vector<int>> rc, vector<string> operations) {
+    string before = "";
+    int beforeCnt = 0;
+    for(string operation : operations) {
+        if(operation != before) {
+            if(before == "Rotate") {
+                for(int i=0; i<beforeCnt; i++) {
+                    rotate(rc);
+                }
+            }
+            else {
+                for(int i=0; i<beforeCnt; i++) {
+                    shiftRow(rc);
+                }
+            }
+            beforeCnt = 1;
+            before = operation;
+        }
+        else {
+            beforeCnt++;
+            if(before == "Rotate" && beforeCnt % ((rc.size() * rc[0].size()) - 1) == 0) {
+                beforeCnt = 0;
+            }
+            else if(before == "ShiftRow" && beforeCnt % rc.size() == 0) {
+                beforeCnt = 0;
+            }
+        }
+    }
+
+    if (before == "Rotate") {
+        for (int i = 0; i < beforeCnt; i++) {
+            rotate(rc);
+        }
+    } else {
+        for (int i = 0; i < beforeCnt; i++) {
+            shiftRow(rc);
+        }
+    }
+
+    return rc;
+}
+
+void print(vector<vector<int>> arr) {
+    for(int i=0; i<arr.size(); i++) {
+        for(int j=0; j<arr[0].size(); j++) {
+            cout << arr[i][j] << " ";
+        }
+        cout << '\n';
+    }
+    cout << '\n';
+}
+
+int main() {
+    vector<vector<int>> arr(3, vector<int>(3));
+    for(int i=0; i<arr.size(); i++) {
+        for(int j=0; j<arr[0].size(); j++) {
+            cin >> arr[i][j];
+        }
+    }
+    rotate(arr);
+    print(arr);
+    shiftRow(arr);
+    print(arr);
 }
