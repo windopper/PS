@@ -1,104 +1,67 @@
 #include <bits/stdc++.h>
 
 using namespace std;
+int M, N, K;
+vector<vector<int>> arr;
+vector<vector<int>> vis;
+int dx[4] = {0, 0, 1, -1};
+int dy[4] = {1, -1, 0, 0};
 
-void shiftRow(vector<vector<int>>& rc) {
-    int h = rc.size();
-    int w = rc[0].size();
-    vector<int> temp(w);
-    for(int j=0; j<w; j++) {
-        temp[j] = rc[h-1][j];
-    }
-    for(int i=h-1; i>0; i--) {
-        for(int j=0; j<w; j++) {
-            rc[i][j] = rc[i-1][j];
-        }
-    }
-    for(int j=0; j<w; j++) {
-        rc[0][j] = temp[j];
+void dfs(int x, int y) {
+    for (int i = 0; i < 4; i++) {
+        int nx = x + dx[i];
+        int ny = y + dy[i];
+        if (nx < 0 || nx >= M || ny < 0 || ny >= N) continue;
+        if (vis[ny][nx] || arr[ny][nx] == 0) continue;
+        vis[ny][nx] = 1;
+        dfs(nx, ny);
     }
 }
 
-void rotate(vector<vector<int>>& rc) {
-    int temp = rc[0][0];
-    int h = rc.size();
-    int w = rc[0].size();
-    for(int i=1; i<h; i++) {
-        rc[i-1][0] = rc[i][0];
-    }
-    for(int i=1; i<w; i++) {
-        rc[h-1][i-1] = rc[h-1][i];
-    }
-    for(int i=h-1; i>0; --i) {
-        rc[i][w-1] = rc[i-1][w-1];
-    }
-    for(int i=w-1; i>0; i--) {
-        rc[0][i] = rc[0][i-1];
-    }
-    rc[0][1] = temp;
-}
-
-vector<vector<int>> solution(vector<vector<int>> rc, vector<string> operations) {
-    string before = "";
-    int beforeCnt = 0;
-    for(string operation : operations) {
-        if(operation != before) {
-            if(before == "Rotate") {
-                for(int i=0; i<beforeCnt; i++) {
-                    rotate(rc);
-                }
-            }
-            else {
-                for(int i=0; i<beforeCnt; i++) {
-                    shiftRow(rc);
-                }
-            }
-            beforeCnt = 1;
-            before = operation;
-        }
-        else {
-            beforeCnt++;
-            if(before == "Rotate" && beforeCnt % ((rc.size() * rc[0].size()) - 1) == 0) {
-                beforeCnt = 0;
-            }
-            else if(before == "ShiftRow" && beforeCnt % rc.size() == 0) {
-                beforeCnt = 0;
-            }
+void bfs(int x, int y) {
+    queue<pair<int, int>> q;
+    q.push({x, y});
+    while (!q.empty()) {
+        int x = q.front().first;
+        int y = q.front().second;
+        q.pop();
+        for (int i = 0; i < 4; i++) {
+            int nx = x + dx[i];
+            int ny = y + dy[i];
+            if (nx < 0 || nx >= M || ny < 0 || ny >= N) continue;
+            if (vis[ny][nx] || arr[ny][nx] == 0) continue;
+            vis[ny][nx] = 1;
+            q.push({nx, ny});
         }
     }
-
-    if (before == "Rotate") {
-        for (int i = 0; i < beforeCnt; i++) {
-            rotate(rc);
-        }
-    } else {
-        for (int i = 0; i < beforeCnt; i++) {
-            shiftRow(rc);
-        }
-    }
-
-    return rc;
-}
-
-void print(vector<vector<int>> arr) {
-    for(int i=0; i<arr.size(); i++) {
-        for(int j=0; j<arr[0].size(); j++) {
-            cout << arr[i][j] << " ";
-        }
-        cout << '\n';
-    }
-    cout << '\n';
 }
 
 int main() {
-    vector<vector<int>> arr(3, vector<int>(3));
-    for(int i=0; i<arr.size(); i++) {
-        for(int j=0; j<arr[0].size(); j++) {
-            cin >> arr[i][j];
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    cout.tie(0);
+    int T;
+    cin >> T;
+    while (T--) {
+        cin >> M >> N >> K;
+        int ans = 0;
+        arr.assign(N, vector<int>(M, 0));
+        vis.assign(N, vector<int>(M, 0));
+        for (int i = 0; i < K; i++) {
+            int x, y;
+            cin >> x >> y;
+            arr[y][x] = 1;
         }
+
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < M; j++) {
+                if (vis[i][j] || arr[i][j] == 0) continue;
+                vis[i][j] = 1;
+                ++ans;
+                // bfs(j, i);
+                // dfs(j, i)
+            }
+        }
+        cout << ans << '\n';
     }
-    rotate(arr);
-    print(arr);
-    shiftRow(arr);
-    print(arr);
 }
