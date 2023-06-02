@@ -1,67 +1,50 @@
-#include <bits/stdc++.h>
+#include<bits/stdc++.h>
+#define MOD 100000000
 
 using namespace std;
-int M, N, K;
-vector<vector<int>> arr;
-vector<vector<int>> vis;
-int dx[4] = {0, 0, 1, -1};
-int dy[4] = {1, -1, 0, 0};
 
-void dfs(int x, int y) {
-    for (int i = 0; i < 4; i++) {
-        int nx = x + dx[i];
-        int ny = y + dy[i];
-        if (nx < 0 || nx >= M || ny < 0 || ny >= N) continue;
-        if (vis[ny][nx] || arr[ny][nx] == 0) continue;
-        vis[ny][nx] = 1;
-        dfs(nx, ny);
-    }
-}
+int N,M,T;
 
-void bfs(int x, int y) {
-    queue<pair<int, int>> q;
-    q.push({x, y});
-    while (!q.empty()) {
-        int x = q.front().first;
-        int y = q.front().second;
-        q.pop();
-        for (int i = 0; i < 4; i++) {
-            int nx = x + dx[i];
-            int ny = y + dy[i];
-            if (nx < 0 || nx >= M || ny < 0 || ny >= N) continue;
-            if (vis[ny][nx] || arr[ny][nx] == 0) continue;
-            vis[ny][nx] = 1;
-            q.push({nx, ny});
+long long int finding(long long int a, long long int b){
+
+    long long int c = b-a;
+    long long int sum1 = 1;
+    long long int sum2 = 1;
+    long long int sto1 = 0;
+    long long int sto2 = 0;
+    while(c){
+        sum1 = c;
+        sum2= b;
+        b--;
+        c--;
+        if(sum1 >= MOD){
+            sto1 += sum1/MOD;
+            sum1 %= MOD;
+        }
+        if(sum2 >= MOD){
+            sto2 += sum2/MOD;
+            sum2 %= MOD;
         }
     }
+
+    if(sto1){
+        long long int tmp = sto2/sto1;
+        return tmp*sum2/sum1;
+    }
+    else{
+        long long int tmp = 1;
+        if(sto2){
+            tmp = MOD*sto2;
+        }
+        return tmp*sum2/sum1;
+    }
 }
 
-int main() {
-    ios_base::sync_with_stdio(0);
-    cin.tie(0);
-    cout.tie(0);
-    int T;
+int main(){
     cin >> T;
-    while (T--) {
-        cin >> M >> N >> K;
-        int ans = 0;
-        arr.assign(N, vector<int>(M, 0));
-        vis.assign(N, vector<int>(M, 0));
-        for (int i = 0; i < K; i++) {
-            int x, y;
-            cin >> x >> y;
-            arr[y][x] = 1;
-        }
-
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < M; j++) {
-                if (vis[i][j] || arr[i][j] == 0) continue;
-                vis[i][j] = 1;
-                ++ans;
-                // bfs(j, i);
-                // dfs(j, i)
-            }
-        }
-        cout << ans << '\n';
+    while(T--){
+        long long int a,b;
+        cin >> a >> b;
+        cout << finding(a,b) << '\n';
     }
 }

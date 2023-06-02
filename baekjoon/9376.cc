@@ -4,128 +4,116 @@ using namespace std;
 int h, w;
 int dx[4] = {0, 0, -1, 1};
 int dy[4] = {1, -1, 0, 0};
-int dp[101][101];
+vector<vector<vector<int>>> dp;
 vector<string> arr;
-const int MAX = numeric_limits<int>::max();
+const int INF = numeric_limits<int>::max();
 
-int solve(int x, int y) {
-    if(x<0||x>=w||y<0||y>=h) {
-        return 0;        
-    }
-    int &ret = dp[y][x];
-    if(ret != -1) return ret;
-    ret = 987654321;
-    for(int i=0; i<4; i++) {
-        int nx = x + dx[i];
-        int ny = y + dy[i];
-        if(nx<0||nx>=w||ny<0||ny>=h) {
-            ret = min(ret, solve(nx, ny));
+struct comp {
+    bool operator()(vector<int>& a, vector<int>& b) { return a[0] > b[0]; }
+};
+
+int solve(vector<pair<int, int>>& prisoners) {
+    priority_queue<vector<int>, vector<vector<int>>, comp> pq;
+    pair<int, int> p = prisoners[0];
+    dp[p.second][p.first][0] = 0;
+    pq.push({0, p.first, p.second});
+
+    int ret = INF;
+
+    while (!pq.empty()) {
+        int cost = pq.top()[0];
+        int x = pq.top()[1];
+        int y = pq.top()[2];
+        pq.pop();
+
+        // cout << cost << " " << cur << '\n';
+
+        if (dp[y][x][0] < cost) continue;
+
+        for (int i = 0; i < 4; i++) {
+            int nx = x + dx[i];
+            int ny = y + dy[i];
+            if (nx < 0 || nx >= w || ny < 0 || ny >= h) {
+                continue;
+            }
+            if (arr[ny][nx] == '*') continue;
+
+            int nextCost = cost;
+            if (arr[ny][nx] == '#') nextCost++;
+            if (dp[ny][nx][0] > nextCost) {
+                dp[ny][nx][0] = nextCost;
+                pq.push({nextCost, nx, ny});
+            }
         }
-        else {
-            if(arr[ny][nx] == '*') continue;
-            else if(arr[ny][nx] == '.') ret = min(ret, solve(nx, ny));
-            else if(arr[ny][nx] == '#') ret = min(ret, solve(nx, ny) + 1);
+    }
+
+    p = prisoners[1];
+    dp[p.second][p.first][1] = 0;
+    pq.push({0, p.first, p.second});
+
+    while (!pq.empty()) {
+        int cost = pq.top()[0];
+        int x = pq.top()[1];
+        int y = pq.top()[2];
+        pq.pop();
+
+        //cout << cost << " " << '\n';
+
+        if (dp[y][x][1] < cost) continue;
+
+        for (int i = 0; i < 4; i++) {
+            int nx = x + dx[i];
+            int ny = y + dy[i];
+            if (nx < 0 || nx >= w || ny < 0 || ny >= h) {
+                ret = min(ret, cost + dp[y][x][0]);
+                continue;
+            }
+            if (arr[ny][nx] == '*') continue;
+
+            int nextCost = cost;
+            if (arr[ny][nx] == '#' && dp[ny][nx][0] == INF) nextCost++;
+            if (dp[ny][nx][1] > nextCost) {
+                dp[ny][nx][1] = nextCost;
+                pq.push({nextCost, nx, ny});
+            }
         }
     }
-    cout << x << " " << y << " " << ret << "\n";
+
     return ret;
 }
 
-int solve(vector<pair<int ,int>>& prisoners) {
-    vector<vector<vector<int>>> dis(h, vector<vector<int>>(w, vector<int>(2)));
-    for(int i=0; i<h; i++) {
-        for(int j=0; j<w; j++) {
-            for(int k=0; k<2; k++) dis[i][j][k] = MAX;
-        }
-    }
-    priority_queue<vector<int>> q;
-    q.push({0, prisoners[0].first, prisoners[0].second});
-    int ans = 0;
-    while(!q.empty()) {
-        vector<int> cur = q.top();
-        q.pop();
-        int x = cur[1];
-        int y = cur[2];
-        int cnt = -cur[0];
-        cout << x << " " << y << " " << cnt << '\n';
-        if(dis[y][x][0] != MAX) {
-            continue;
-        }
-
-        for(int i=0; i<4; i++) {
-            int nx = x + dx[i];
-            int ny = y + dy[i];
-            if(nx<0||nx>=w||ny<0||ny>=h) {
-                ans += cnt;
-                continue;
-            }
-            if(arr[ny][nx] == '*') continue;
-            if(arr[ny][nx] == '#' && dis[ny][nx][0] > cnt + 1) {
-                dis[ny][nx][0] = cnt + 1;
-                q.push({-cnt - 1, nx, ny});
-                continue;
-            }
-            dis[ny][nx][0] = cnt;
-            q.push({-cnt, nx, ny});
-        }
-    }
-
-    q.push({0, prisoners[1].first, prisoners[1].second});
-
-    while(!q.empty()) {
-        vector<int> cur = q.top();
-        q.pop();
-        int x = cur[1];
-        int y = cur[2];
-        int cnt = -cur[0];
-        //cout << x << " " << y << " " << cnt << '\n';
-        if(dis[y][x][1] <= cnt) {
-            continue;
-        }
-
-        for(int i=0; i<4; i++) {
-            int nx = x + dx[i];
-            int ny = y + dy[i];
-            if(dis[ny][nx][0] > 0) {
-                ans += cnt;
-                continue;
-            }
-            if(arr[ny][nx] == '*') continue;
-            if(arr[ny][nx] == '#' && dis[ny][nx][1] > cnt + 1) {
-                dis[ny][nx][1] = cnt + 1;
-                q.push({-cnt - 1, nx, ny});
-                continue;
-            }
-            dis[ny][nx][1] = cnt;
-            q.push({-cnt, nx, ny});
-        }
-    }
-    return ans;
-}
-
 int main() {
-    ios_base::sync_with_stdio(0); cin.tie(0); cout.tie(0);
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    cout.tie(0);
     int T;
     cin >> T;
-    for(; T>0; --T) {
+    for (; T > 0; --T) {
         cin >> h >> w;
-        memset(dp, -1, sizeof(dp));
+        dp.assign(101, vector<vector<int>>(101, vector<int>(2, INF)));
         arr.clear();
         vector<pair<int, int>> prisoners;
-        for(int i=0; i<h; i++) {
+        for (int i = 0; i < h; i++) {
             string s;
             cin >> s;
-            for(int j=0; j<w; j++) {
-                if(s[j] == '$') {
-                    s[j] = '.';
+            for (int j = 0; j < w; j++) {
+                if (s[j] == '$') {
                     prisoners.push_back({j, i});
                 }
             }
             arr.push_back(s);
         }
 
-        int ans = 0;
-        cout << solve(prisoners);
+        cout << solve(prisoners) << '\n';
+        for (int k = 0; k < 2; k++) {
+            for (int i = 0; i < h; i++) {
+                for (int j = 0; j < w; j++) {
+                    if(dp[i][j][k] == INF) cout << '-';
+                    else cout << dp[i][j][k];
+                }
+                cout << endl;
+            }
+            cout << "\n\n";
+        }
     }
-
 }
